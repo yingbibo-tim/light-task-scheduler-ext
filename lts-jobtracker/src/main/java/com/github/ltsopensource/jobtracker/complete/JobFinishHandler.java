@@ -94,7 +94,7 @@ public class JobFinishHandler {
     }
 
     private void finishNoReplyPrevCronJob(JobMeta jobMeta) {
-        JobPo jobPo = appContext.getCronJobQueue().getJob(jobMeta.getJob().getTaskTrackerNodeGroup(), jobMeta.getRealTaskId());
+        JobPo jobPo = appContext.getCronJobQueue().getJob(jobMeta.getJob().getTaskTrackerNodeGroup(),jobMeta.getJob().getTaskTrackerSubNodeGroup(), jobMeta.getRealTaskId());
         if (jobPo == null) {
             // 可能任务队列中改条记录被删除了
             return;
@@ -102,7 +102,7 @@ public class JobFinishHandler {
         Date nextTriggerTime = CronExpressionUtils.getNextTriggerTime(jobPo.getCronExpression());
         if (nextTriggerTime == null) {
             // 检查可执行队列中是否还有
-            if (appContext.getExecutableJobQueue().countJob(jobPo.getRealTaskId(), jobPo.getTaskTrackerNodeGroup()) == 0) {
+            if (appContext.getExecutableJobQueue().countJob(jobPo.getRealTaskId(), jobPo.getTaskTrackerNodeGroup(),jobPo.getTaskTrackerSubNodeGroup()) == 0) {
                 // TODO 检查执行中队列是否还有
                 // 从CronJob队列中移除
                 appContext.getCronJobQueue().remove(jobPo.getJobId());
@@ -112,7 +112,7 @@ public class JobFinishHandler {
     }
 
     private void finishNoReplyPrevRepeatJob(JobMeta jobMeta, boolean isRetryForThisTime) {
-        JobPo jobPo = appContext.getRepeatJobQueue().getJob(jobMeta.getJob().getTaskTrackerNodeGroup(), jobMeta.getRealTaskId());
+        JobPo jobPo = appContext.getRepeatJobQueue().getJob(jobMeta.getJob().getTaskTrackerNodeGroup(),jobMeta.getJob().getTaskTrackerNodeGroup(), jobMeta.getRealTaskId());
         if (jobPo == null) {
             // 可能任务队列中改条记录被删除了
             return;

@@ -10,8 +10,15 @@ import com.github.ltsopensource.core.factory.NamedThreadFactory;
 import com.github.ltsopensource.core.support.NodeShutdownHook;
 import com.github.ltsopensource.core.support.SystemClock;
 import com.github.ltsopensource.queue.domain.JobPo;
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Table;
+import com.google.common.collect.Tables;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -26,8 +33,17 @@ public abstract class AbstractPreLoader implements PreLoader {
 
     private ConcurrentHashMap<String/*taskTrackerNodeGroup*/, JobPriorityBlockingDeque> JOB_MAP = new ConcurrentHashMap<String, JobPriorityBlockingDeque>();
 
+    private final Table<String,String, JobPriorityBlockingDeque> JOB_TABLE = Tables.synchronizedTable(HashBasedTable.<String, String, JobPriorityBlockingDeque>create());
+
+    Map<String,String> map = Maps.newConcurrentMap();
+
+
     // 加载的信号
     private ConcurrentHashSet<String> LOAD_SIGNAL = new ConcurrentHashSet<String>();
+
+    private final String LOAD_SPLIT = "@#@#@";
+
+    //TODO 加载数据信号量 线程
     private ScheduledExecutorService LOAD_EXECUTOR_SERVICE = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("LTS-PreLoader", true));
     @SuppressWarnings("unused")
     private ScheduledFuture<?> scheduledFuture;
@@ -61,21 +77,23 @@ public abstract class AbstractPreLoader implements PreLoader {
     }
 
     private void doLoad() {
-        for (final String loadTaskTrackerNodeGroup : LOAD_SIGNAL) {
+        for (final String loadTaskTrackerNodeGroupWithSubNode : LOAD_SIGNAL) {
+            final String loadTaskTrackerNodeGroup = loadTaskTrackerNodeGroupWithSubNode.split(LOAD_SPLIT)[0];
+            final String taskTrackerSubNodeGroup = loadTaskTrackerNodeGroupWithSubNode.split(LOAD_SPLIT)[1];
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    AtomicBoolean loading = LOADING.get(loadTaskTrackerNodeGroup);
+                    AtomicBoolean loading = LOADING.get(loadTaskTrackerNodeGroupWithSubNode);
                     if (loading == null) {
                         loading = new AtomicBoolean(false);
-                        AtomicBoolean _loading = LOADING.putIfAbsent(loadTaskTrackerNodeGroup, loading);
+                        AtomicBoolean _loading = LOADING.putIfAbsent(loadTaskTrackerNodeGroupWithSubNode, loading);
                         if (_loading != null) {
                             loading = _loading;
                         }
                     }
                     if (loading.compareAndSet(false, true)) {
                         try {
-                            handleSignal(loadTaskTrackerNodeGroup);
+                            handleSignal(loadTaskTrackerNodeGroup,taskTrackerSubNodeGroup);
                         } finally {
                             loading.compareAndSet(true, false);
                         }
@@ -85,7 +103,7 @@ public abstract class AbstractPreLoader implements PreLoader {
         }
     }
 
-    private void handleSignal(String loadTaskTrackerNodeGroup) {
+    private void handleSignal(String loadTaskTrackerNodeGroup,String taskTrackerSubNodeGroup) {
         // 是否是强制加载
         boolean force = false;
         if (loadTaskTrackerNodeGroup.startsWith(FORCE_PREFIX)) {
@@ -93,7 +111,8 @@ public abstract class AbstractPreLoader implements PreLoader {
             force = true;
         }
 
-        JobPriorityBlockingDeque queue = JOB_MAP.get(loadTaskTrackerNodeGroup);
+        JobPriorityBlockingDeque queue = JOB_TABLE.get(loadTaskTrackerNodeGroup,taskTrackerSubNodeGroup);
+
         if (queue == null) {
             return;
         }
@@ -102,16 +121,16 @@ public abstract class AbstractPreLoader implements PreLoader {
 
             int needLoadSize = loadSize + size;
             if (force) {
-                // 强制加载全量加载吧
+                // 强制加载全量数据到队列里面去
                 needLoadSize = loadSize;
             }
             // load
             PeriodUtils.start();
             List<JobPo> loads = null;
             try {
-                loads = load(loadTaskTrackerNodeGroup, needLoadSize);
+                loads = load(loadTaskTrackerNodeGroup,taskTrackerSubNodeGroup, needLoadSize);
             } finally {
-                PeriodUtils.end("AbstractPreLoader.load loadTaskTrackerNodeGroup:{},loadSide={}", loadTaskTrackerNodeGroup, needLoadSize);
+                PeriodUtils.end("AbstractPreLoader.load loadTaskTrackerNodeGroup:{},taskTrackerSubNodeGroup {} ,loadSide={}", loadTaskTrackerNodeGroup,taskTrackerSubNodeGroup, needLoadSize);
             }
             // 加入到内存中
             if (CollectionUtils.isNotEmpty(loads)) {
@@ -130,16 +149,17 @@ public abstract class AbstractPreLoader implements PreLoader {
                         }
                     }
                 } finally {
-                    PeriodUtils.end("AbstractPreLoader.offer loadTaskTrackerNodeGroup:{},loadSide={}", loadTaskTrackerNodeGroup, needLoadSize);
+                    PeriodUtils.end("AbstractPreLoader.offer loadTaskTrackerNodeGroup:{},taskTrackerSubNodeGroup {},loadSide={}", loadTaskTrackerNodeGroup,taskTrackerSubNodeGroup, needLoadSize);
                 }
             }
         }
-        LOAD_SIGNAL.remove(loadTaskTrackerNodeGroup);
+        LOAD_SIGNAL.remove(loadTaskTrackerNodeGroup.concat(taskTrackerSubNodeGroup));
     }
 
-    public JobPo take(String taskTrackerNodeGroup, String taskTrackerIdentity) {
+    @Override
+    public JobPo take(String taskTrackerNodeGroup, String taskTrackerSubNodeGroup, String taskTrackerIdentity) {
         while (true) {
-            JobPo jobPo = get(taskTrackerNodeGroup);
+            JobPo jobPo = get(taskTrackerNodeGroup,taskTrackerSubNodeGroup);
             if (jobPo == null) {
                 DotLogUtils.dot("Empty JobQueue, taskTrackerNodeGroup:{}, taskTrackerIdentity:{}", taskTrackerNodeGroup, taskTrackerIdentity);
                 return null;
@@ -162,23 +182,23 @@ public abstract class AbstractPreLoader implements PreLoader {
     }
 
     @Override
-    public void load(String taskTrackerNodeGroup) {
-        if (StringUtils.isEmpty(taskTrackerNodeGroup)) {
+    public void load(String taskTrackerNodeGroup,String taskTrackerSubNodeGroup) {
+        if (StringUtils.isEmpty(taskTrackerNodeGroup)&&StringUtils.isEmpty(taskTrackerSubNodeGroup)) {
             for (String key : JOB_MAP.keySet()) {
                 LOAD_SIGNAL.add(FORCE_PREFIX + key);
             }
             return;
         }
-        LOAD_SIGNAL.add(FORCE_PREFIX + taskTrackerNodeGroup);
+        LOAD_SIGNAL.add(FORCE_PREFIX + taskTrackerNodeGroup.concat(LOAD_SPLIT).concat(taskTrackerSubNodeGroup));
     }
 
     @Override
-    public void loadOne2First(String taskTrackerNodeGroup, String jobId) {
-        JobPo jobPo = getJob(taskTrackerNodeGroup, jobId);
+    public void loadOne2First(String taskTrackerNodeGroup,String taskTrackerSubNodeGroup,String jobId) {
+        JobPo jobPo = getJob(taskTrackerNodeGroup,taskTrackerSubNodeGroup, jobId);
         if (jobPo == null) {
             return;
         }
-        JobPriorityBlockingDeque queue = getQueue(taskTrackerNodeGroup);
+        JobPriorityBlockingDeque queue = getQueue(taskTrackerNodeGroup,taskTrackerSubNodeGroup);
         jobPo.setInternalExtParam(Constants.OLD_PRIORITY, String.valueOf(jobPo.getPriority()));
 
         jobPo.setPriority(Integer.MIN_VALUE);
@@ -189,7 +209,7 @@ public abstract class AbstractPreLoader implements PreLoader {
         }
     }
 
-    protected abstract JobPo getJob(String taskTrackerNodeGroup, String jobId);
+    protected abstract JobPo getJob(String taskTrackerNodeGroup,String taskTrackerSubNodeGroup,String jobId);
 
     /**
      * 锁定任务
@@ -203,18 +223,17 @@ public abstract class AbstractPreLoader implements PreLoader {
     /**
      * 加载任务
      */
-    protected abstract List<JobPo> load(String loadTaskTrackerNodeGroup, int loadSize);
+    protected abstract List<JobPo> load(String loadTaskTrackerNodeGroup,String taskSubGroupNodeName, int loadSize);
 
-    private JobPo get(String taskTrackerNodeGroup) {
-
-        JobPriorityBlockingDeque queue = getQueue(taskTrackerNodeGroup);
-
+    private JobPo get(String taskTrackerNodeGroup,String taskTrackerSubNodeGroup) {
+        JobPriorityBlockingDeque queue = getQueue(taskTrackerNodeGroup,taskTrackerSubNodeGroup);
         int size = queue.size();
-        DotLogUtils.dot("AbstractPreLoader.queue size:{},taskTrackerNodeGroup:{}", size, taskTrackerNodeGroup);
+        DotLogUtils.dot("AbstractPreLoader.queue size:{},taskTrackerNodeGroup:{}, taskTrackerSubNodeGroup:{}  ", size, taskTrackerNodeGroup,taskTrackerSubNodeGroup);
         if (isInFactor(size)) {
             // 触发加载的请求
-            if (!LOAD_SIGNAL.contains(taskTrackerNodeGroup)) {
-                LOAD_SIGNAL.add(taskTrackerNodeGroup);
+            String sign = taskTrackerNodeGroup.concat(LOAD_SPLIT).concat(taskTrackerSubNodeGroup);
+            if(!LOAD_SIGNAL.contains(sign)){
+                LOAD_SIGNAL.add(sign);
                 doLoad();
             }
         }
@@ -238,12 +257,12 @@ public abstract class AbstractPreLoader implements PreLoader {
         return size / (loadSize * 1.0) < factor;
     }
 
-    private JobPriorityBlockingDeque getQueue(String taskTrackerNodeGroup) {
-        JobPriorityBlockingDeque queue = JOB_MAP.get(taskTrackerNodeGroup);
-        if (queue == null) {
+    private JobPriorityBlockingDeque getQueue(String taskTrackerNodeGroup,String taskTrackerSubNodeGroup) {
+        JobPriorityBlockingDeque queue = JOB_TABLE.get(taskTrackerNodeGroup,taskTrackerSubNodeGroup);
+        if(queue == null){
             queue = new JobPriorityBlockingDeque(loadSize);
-            JobPriorityBlockingDeque oldQueue = JOB_MAP.putIfAbsent(taskTrackerNodeGroup, queue);
-            if (oldQueue != null) {
+            JobPriorityBlockingDeque oldQueue = JOB_TABLE.row(taskTrackerNodeGroup).putIfAbsent(taskTrackerSubNodeGroup,queue);
+            if(oldQueue!=null){
                 queue = oldQueue;
             }
         }

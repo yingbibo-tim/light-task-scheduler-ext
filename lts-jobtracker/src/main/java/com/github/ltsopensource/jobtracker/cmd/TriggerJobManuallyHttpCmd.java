@@ -37,17 +37,23 @@ public class TriggerJobManuallyHttpCmd implements HttpCmdProc {
     @Override
     public HttpCmdResponse execute(HttpCmdRequest request) throws Exception {
         String taskTrackerNodeGroup = request.getParam("nodeGroup");
+        // 增加子节点
+        String taskTrackerSubNodeGroup = request.getParam("nodeGroup");
         String jobId = request.getParam("jobId");
 
         if (StringUtils.isEmpty(taskTrackerNodeGroup)) {
             return HttpCmdResponse.newResponse(true, "nodeGroup should not be empty");
         }
 
+        if(StringUtils.isEmpty(taskTrackerSubNodeGroup)){
+            return HttpCmdResponse.newResponse(true, "subNodeGroup should not be empty");
+        }
+
         if (StringUtils.isEmpty(jobId)) {
             return HttpCmdResponse.newResponse(true, "jobId should not be empty");
         }
 
-        appContext.getPreLoader().loadOne2First(taskTrackerNodeGroup, jobId);
+        appContext.getPreLoader().loadOne2First(taskTrackerNodeGroup,taskTrackerSubNodeGroup, jobId);
 
         LOGGER.info("Trigger Job jobId={} taskTrackerNodeGroup={}", jobId, taskTrackerNodeGroup);
 

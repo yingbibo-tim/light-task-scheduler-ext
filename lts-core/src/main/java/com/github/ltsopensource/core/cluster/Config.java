@@ -4,8 +4,7 @@ import com.github.ltsopensource.core.constant.Constants;
 import com.github.ltsopensource.core.json.JSON;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -19,6 +18,11 @@ public class Config implements Serializable {
     private boolean available = true;
     // 应用节点组
     private String nodeGroup;
+
+    //应用子节点
+    // 名字::线程数
+    private Map<String,Integer> subNodeGroupMap = new TreeMap<String,Integer>();
+
     // 唯一标识
     private String identity;
     // 工作线程, 目前只对 TaskTracker 有效
@@ -58,6 +62,18 @@ public class Config implements Serializable {
 
     public void setNodeGroup(String nodeGroup) {
         this.nodeGroup = nodeGroup;
+    }
+
+    public Map<String, Integer> getSubNodeGroupMap() {
+        return subNodeGroupMap;
+    }
+
+    public void setSubNodeGroupMap(Map<String, Integer> subNodeGroupMap) {
+        this.subNodeGroupMap = subNodeGroupMap;
+    }
+
+    public void addSunNodeGroupMap(String subNodeGroupName,Integer sunNodeGroupThreadNum){
+        this.subNodeGroupMap.put(subNodeGroupName,sunNodeGroupThreadNum);
     }
 
     public String getIdentity() {

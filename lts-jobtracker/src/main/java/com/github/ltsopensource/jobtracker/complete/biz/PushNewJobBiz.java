@@ -30,7 +30,7 @@ public class PushNewJobBiz implements JobCompletedBiz {
         if (request.isReceiveNewJob()) {
             try {
                 // 查看有没有其他可以执行的任务
-                JobPushRequest jobPushRequest = getNewJob(request.getNodeGroup(), request.getIdentity());
+                JobPushRequest jobPushRequest = getNewJob(request.getNodeGroup(),request.getTaskTrackerSubNodeGroup(), request.getIdentity());
                 // 返回 新的任务
                 return RemotingCommand.createResponseCommand(RemotingProtos.ResponseCode.SUCCESS.code(), jobPushRequest);
             } catch (Exception ignored) {
@@ -42,9 +42,9 @@ public class PushNewJobBiz implements JobCompletedBiz {
     /**
      * 获取新任务去执行
      */
-    private JobPushRequest getNewJob(String taskTrackerNodeGroup, String taskTrackerIdentity) {
+    private JobPushRequest getNewJob(String taskTrackerNodeGroup,String taskTrackerSubNodeGroup, String taskTrackerIdentity) {
 
-        JobSender.SendResult sendResult = appContext.getJobSender().send(taskTrackerNodeGroup, taskTrackerIdentity, 1, new JobSender.SendInvoker() {
+        JobSender.SendResult sendResult = appContext.getJobSender().send(taskTrackerNodeGroup,taskTrackerSubNodeGroup, taskTrackerIdentity, 1, new JobSender.SendInvoker() {
             @Override
             public JobSender.SendResult invoke(List<JobPo> jobPos) {
 

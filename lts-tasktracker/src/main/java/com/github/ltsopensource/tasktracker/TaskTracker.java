@@ -12,8 +12,10 @@ import com.github.ltsopensource.tasktracker.monitor.TaskTrackerMStatReporter;
 import com.github.ltsopensource.tasktracker.processor.RemotingDispatcher;
 import com.github.ltsopensource.tasktracker.runner.JobRunner;
 import com.github.ltsopensource.tasktracker.runner.RunnerFactory;
-import com.github.ltsopensource.tasktracker.runner.RunnerPool;
+import com.github.ltsopensource.tasktracker.runner.RunnerPoolFactory;
 import com.github.ltsopensource.tasktracker.support.JobPullMachine;
+
+import java.util.Map;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/14/14.
@@ -27,7 +29,8 @@ public class TaskTracker extends AbstractClientNode<TaskTrackerNode, TaskTracker
 
         appContext.setRemotingClient(remotingClient);
         // 设置 线程池
-        appContext.setRunnerPool(new RunnerPool(appContext));
+       // appContext.setRunnerPool(new RunnerPool(appContext));
+        appContext.setRunnerPoolFactory(new RunnerPoolFactory(appContext));
         appContext.getMStatReporter().start();
         appContext.setJobPullMachine(new JobPullMachine(appContext));
         appContext.setStopWorkingMonitor(new StopWorkingMonitor(appContext));
@@ -47,7 +50,7 @@ public class TaskTracker extends AbstractClientNode<TaskTrackerNode, TaskTracker
     protected void afterStop() {
         appContext.getMStatReporter().stop();
         appContext.getStopWorkingMonitor().stop();
-        appContext.getRunnerPool().shutDown();
+        appContext.getRunnerPoolFactory().shutDown();
     }
 
     @Override
@@ -82,4 +85,13 @@ public class TaskTracker extends AbstractClientNode<TaskTrackerNode, TaskTracker
     public void setRunnerFactory(RunnerFactory factory) {
         appContext.setRunnerFactory(factory);
     }
+
+    /**
+     * TaskTaracker设置副分类
+     * @param subNodeGroup
+     */
+    public void setSunNodeGroup(Map<String,Integer> subNodeGroup){
+        config.setSubNodeGroupMap(subNodeGroup);
+    }
+
 }

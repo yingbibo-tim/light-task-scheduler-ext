@@ -71,6 +71,11 @@ public class NodeRegistryUtils {
                     node.setHostName(value);
                 } else if ("httpCmdPort".equals(key)) {
                     node.setHttpCmdPort(Integer.valueOf(value));
+                    // subGroups subThreads 主要用于taskTracker
+                }else if("subGroups".equals(key)){
+                    node.setSubGroups(value);
+                }else if("subThreads".equals(key)){
+                    node.setSubThreads(value);
                 }
             }
             return node;
@@ -116,6 +121,12 @@ public class NodeRegistryUtils {
 
         if (node.getHttpCmdPort() != null) {
             path.append("&httpCmdPort=").append(node.getHttpCmdPort());
+        }
+        if(node.getSubGroups()!=null){
+            path.append("&subGroups=").append(node.getSubGroups());
+        }
+        if(node.getSubThreads()!=null){
+            path.append("&subThreads=").append(node.getSubThreads());
         }
 
         return path.toString();

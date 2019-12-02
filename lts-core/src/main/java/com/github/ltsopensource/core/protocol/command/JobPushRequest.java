@@ -16,7 +16,27 @@ public class JobPushRequest extends AbstractRemotingCommandBody {
 	@NotNull
     private List<JobMeta> jobMetaList;
 
-    /**
+	private String taskTrackerNodeGroup;
+
+	private String taskTrackerSubNodeGroup;
+
+	public String getTaskTrackerNodeGroup() {
+		return taskTrackerNodeGroup;
+	}
+
+	public void setTaskTrackerNodeGroup(String taskTrackerNodeGroup) {
+		this.taskTrackerNodeGroup = taskTrackerNodeGroup;
+	}
+
+	public String getTaskTrackerSubNodeGroup() {
+		return taskTrackerSubNodeGroup;
+	}
+
+	public void setTaskTrackerSubNodeGroup(String taskTrackerSubNodeGroup) {
+		this.taskTrackerSubNodeGroup = taskTrackerSubNodeGroup;
+	}
+
+	/**
      *  jobClient(lts-1.7.0) deserialize  message from jobTracker (lts-1.6.9)
      */
 	@Deprecated

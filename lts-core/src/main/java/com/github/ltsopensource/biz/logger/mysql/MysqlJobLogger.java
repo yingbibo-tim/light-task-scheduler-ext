@@ -68,6 +68,7 @@ public class MysqlJobLogger extends JdbcAbstractAccess implements JobLogger {
                         "priority",
                         "submit_node_group",
                         "task_tracker_node_group",
+                        "task_tracker_sub_node_group",
                         "ext_params",
                         "internal_ext_params",
                         "need_feedback",
@@ -97,6 +98,7 @@ public class MysqlJobLogger extends JdbcAbstractAccess implements JobLogger {
                 jobLogPo.getPriority(),
                 jobLogPo.getSubmitNodeGroup(),
                 jobLogPo.getTaskTrackerNodeGroup(),
+                jobLogPo.getTaskTrackerSubNodeGroup(),
                 JSON.toJSONString(jobLogPo.getExtParams()),
                 JSON.toJSONString(jobLogPo.getInternalExtParams()),
                 jobLogPo.isNeedFeedback(),
@@ -110,6 +112,8 @@ public class MysqlJobLogger extends JdbcAbstractAccess implements JobLogger {
                 jobLogPo.getRepeatInterval());
     }
 
+
+    //TODO search subNodeGroup
     @Override
     public PaginationRsp<JobLogPo> search(JobLoggerRequest request) {
 

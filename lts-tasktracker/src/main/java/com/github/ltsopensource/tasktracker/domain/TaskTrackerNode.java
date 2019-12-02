@@ -10,6 +10,9 @@ import com.github.ltsopensource.core.cluster.NodeType;
  */
 public class TaskTrackerNode extends Node {
 
+    private String subGroupNode;
+
+
     public TaskTrackerNode() {
         this.setNodeType(NodeType.TASK_TRACKER);
         // 关注 JobTracker
@@ -17,5 +20,7 @@ public class TaskTrackerNode extends Node {
         this.addListenNodeType(NodeType.TASK_TRACKER);
         this.addListenNodeType(NodeType.MONITOR);
     }
+
+
 
 }

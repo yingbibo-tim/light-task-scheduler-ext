@@ -52,7 +52,7 @@ public class MysqlRepeatJobQueue extends MysqlSchedulerJobQueue implements Repea
     }
 
     @Override
-    public JobPo getJob(String taskTrackerNodeGroup, String taskId) {
+    public JobPo getJob(String taskTrackerNodeGroup,String taskSubTrackerNodeGroup,String taskId) {
 
         return new SelectSql(getSqlTemplate())
                 .select()
@@ -61,6 +61,7 @@ public class MysqlRepeatJobQueue extends MysqlSchedulerJobQueue implements Repea
                 .table(getTableName())
                 .where("task_id = ?", taskId)
                 .and("task_tracker_node_group = ?", taskTrackerNodeGroup)
+                .and("task_sub_tracker_node_group = ?",taskSubTrackerNodeGroup)
                 .single(RshHolder.JOB_PO_RSH);
     }
 
@@ -83,6 +84,7 @@ public class MysqlRepeatJobQueue extends MysqlSchedulerJobQueue implements Repea
         }
     }
 
+    @Override
     protected String getTableName() {
         return JobQueueUtils.REPEAT_JOB_QUEUE;
     }

@@ -51,7 +51,7 @@ public class MysqlCronJobQueue extends MysqlSchedulerJobQueue implements CronJob
     }
 
     @Override
-    public JobPo getJob(String taskTrackerNodeGroup, String taskId) {
+    public JobPo getJob(String taskTrackerNodeGroup,String taskTrackerSubNodeGroup,String taskId) {
 
         return new SelectSql(getSqlTemplate())
                 .select()
@@ -60,9 +60,11 @@ public class MysqlCronJobQueue extends MysqlSchedulerJobQueue implements CronJob
                 .table(getTableName())
                 .where("task_id = ?", taskId)
                 .and("task_tracker_node_group = ?", taskTrackerNodeGroup)
+                .and("task_tracker_sub_node_group = ?", taskTrackerSubNodeGroup)
                 .single(RshHolder.JOB_PO_RSH);
     }
 
+    @Override
     protected String getTableName() {
         return JobQueueUtils.CRON_JOB_QUEUE;
     }

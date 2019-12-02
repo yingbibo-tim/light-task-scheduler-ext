@@ -27,7 +27,7 @@ public interface RepeatJobQueue extends SchedulerJobQueue {
     /**
      * 得到JobPo
      */
-    JobPo getJob(String taskTrackerNodeGroup, String taskId);
+    JobPo getJob(String taskTrackerNodeGroup,String taskSubTrackerNodeGroup,String taskId);
 
     /**
      * 增加重复次数

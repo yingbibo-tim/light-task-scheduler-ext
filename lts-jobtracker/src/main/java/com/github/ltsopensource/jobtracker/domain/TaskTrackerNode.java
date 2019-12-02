@@ -11,6 +11,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class TaskTrackerNode {
     // 节点组名称
     public String nodeGroup;
+
+    public String subNodeGroup;
+
     // 可用线程数
     public AtomicInteger availableThread;
     // 唯一标识
@@ -20,8 +23,9 @@ public class TaskTrackerNode {
 
     public Long timestamp = null;
 
-    public TaskTrackerNode(String nodeGroup, int availableThread, String identity, ChannelWrapper channel) {
+    public TaskTrackerNode(String nodeGroup,String subNodeGroup,int availableThread, String identity, ChannelWrapper channel) {
         this.nodeGroup = nodeGroup;
+        this.subNodeGroup = subNodeGroup;
         this.availableThread = new AtomicInteger(availableThread);
         this.identity = identity;
         this.channel = channel;
@@ -42,6 +46,14 @@ public class TaskTrackerNode {
 
     public void setNodeGroup(String nodeGroup) {
         this.nodeGroup = nodeGroup;
+    }
+
+    public String getSubNodeGroup() {
+        return subNodeGroup;
+    }
+
+    public void setSubNodeGroup(String subNodeGroup) {
+        this.subNodeGroup = subNodeGroup;
     }
 
     public AtomicInteger getAvailableThread() {
@@ -97,9 +109,11 @@ public class TaskTrackerNode {
     public String toString() {
         return "TaskTrackerNode{" +
                 "nodeGroup='" + nodeGroup + '\'' +
-                ", availableThread=" + (availableThread == null ? 0 : availableThread.get()) +
+                ", subNodeGroup='" + subNodeGroup + '\'' +
+                ", availableThread=" + availableThread +
                 ", identity='" + identity + '\'' +
                 ", channel=" + channel +
+                ", timestamp=" + timestamp +
                 '}';
     }
 }

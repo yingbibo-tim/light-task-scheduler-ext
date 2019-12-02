@@ -50,10 +50,10 @@ public class MongoExecutableJobQueue extends AbstractMongoJobQueue implements Ex
         // create index if not exist
         if (CollectionUtils.sizeOf(indexInfo) <= 1) {
             template.ensureIndex(tableName, "idx_jobId", "jobId", true, true);
-            template.ensureIndex(tableName, "idx_taskId_taskTrackerNodeGroup", "taskId, taskTrackerNodeGroup", true, true);
+            template.ensureIndex(tableName, "idx_taskId_taskTrackerNodeGroup_taskTrackerSubNodeGroup", "taskId, taskTrackerNodeGroup, taskTrackerSubNodeGroup", true, true);
             template.ensureIndex(tableName, "idx_taskTrackerIdentity", "taskTrackerIdentity");
             template.ensureIndex(tableName, "idx_jobType", "jobType");
-            template.ensureIndex(tableName, "idx_realTaskId_taskTrackerNodeGroup", "realTaskId, taskTrackerNodeGroup");
+            template.ensureIndex(tableName, "idx_realTaskId_taskTrackerNodeGroup_taskTrackerSubNodeGroup", "realTaskId, taskTrackerNodeGroup, taskTrackerSubNodeGroup");
             template.ensureIndex(tableName, "idx_priority_triggerTime_gmtCreated", "priority,triggerTime,gmtCreated");
             template.ensureIndex(tableName, "idx_isRunning", "isRunning");
             LOGGER.info("create queue " + tableName);
@@ -98,24 +98,27 @@ public class MongoExecutableJobQueue extends AbstractMongoJobQueue implements Ex
     }
 
     @Override
-    public long countJob(String realTaskId, String taskTrackerNodeGroup) {
+    public long countJob(String realTaskId, String taskTrackerNodeGroup,String taskTrackerSubNodeGroup) {
         String tableName = JobQueueUtils.getExecutableQueueName(taskTrackerNodeGroup);
         Query<JobPo> query = template.createQuery(tableName, JobPo.class);
         query.field("realTaskId").equal(realTaskId);
         query.field("taskTrackerNodeGroup").equal(taskTrackerNodeGroup);
+        query.field("taskTrackerSubNodeGroup").equal(taskTrackerSubNodeGroup);
         return query.countAll();
     }
 
     @Override
-    public boolean removeBatch(String realTaskId, String taskTrackerNodeGroup) {
+    public boolean removeBatch(String realTaskId, String taskTrackerNodeGroup,String taskTrackerSubNodeGroup) {
         String tableName = JobQueueUtils.getExecutableQueueName(taskTrackerNodeGroup);
         Query<JobPo> query = template.createQuery(tableName, JobPo.class);
         query.field("realTaskId").equal(realTaskId);
         query.field("taskTrackerNodeGroup").equal(taskTrackerNodeGroup);
+        query.field("taskTrackerSubNodeGroup").equal(taskTrackerSubNodeGroup);
         template.delete(query);
         return true;
     }
 
+    @Override
     public void resume(JobPo jobPo) {
         String tableName = JobQueueUtils.getExecutableQueueName(jobPo.getTaskTrackerNodeGroup());
         Query<JobPo> query = template.createQuery(tableName, JobPo.class);
@@ -140,11 +143,12 @@ public class MongoExecutableJobQueue extends AbstractMongoJobQueue implements Ex
     }
 
     @Override
-    public JobPo getJob(String taskTrackerNodeGroup, String taskId) {
+    public JobPo getJob(String taskTrackerNodeGroup,String taskTrackerSubNodeGroup,String taskId) {
         String tableName = JobQueueUtils.getExecutableQueueName(taskTrackerNodeGroup);
         Query<JobPo> query = template.createQuery(tableName, JobPo.class);
         query.field("taskId").equal(taskId).
-                field("taskTrackerNodeGroup").equal(taskTrackerNodeGroup);
+                field("taskTrackerNodeGroup").equal(taskTrackerNodeGroup)
+        .field("taskTrackerSubNodeGroup").equal(taskTrackerSubNodeGroup);
         return query.get();
     }
 }

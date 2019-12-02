@@ -37,6 +37,8 @@ public class JobLogPo {
     // 执行的节点
     private String taskTrackerNodeGroup;
 
+    private String taskTrackerSubNodeGroup;
+
     private Map<String, String> extParams;
     /**
      * 内部使用的扩展参数
@@ -182,6 +184,14 @@ public class JobLogPo {
 
     public void setTaskTrackerNodeGroup(String taskTrackerNodeGroup) {
         this.taskTrackerNodeGroup = taskTrackerNodeGroup;
+    }
+
+    public String getTaskTrackerSubNodeGroup() {
+        return taskTrackerSubNodeGroup;
+    }
+
+    public void setTaskTrackerSubNodeGroup(String taskTrackerSubNodeGroup) {
+        this.taskTrackerSubNodeGroup = taskTrackerSubNodeGroup;
     }
 
     public Map<String, String> getExtParams() {

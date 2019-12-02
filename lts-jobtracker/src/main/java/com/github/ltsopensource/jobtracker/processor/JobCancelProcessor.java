@@ -33,20 +33,21 @@ public class JobCancelProcessor extends AbstractRemotingProcessor {
 
         String taskId = jobCancelRequest.getTaskId();
         String taskTrackerNodeGroup = jobCancelRequest.getTaskTrackerNodeGroup();
-        JobPo jobPo = appContext.getCronJobQueue().getJob(taskTrackerNodeGroup, taskId);
+        String taskTrackerSubNodeGroup = jobCancelRequest.getTaskTrackerSubNodeGroup();
+        JobPo jobPo = appContext.getCronJobQueue().getJob(taskTrackerNodeGroup,taskTrackerSubNodeGroup, taskId);
         if (jobPo == null) {
-            jobPo = appContext.getRepeatJobQueue().getJob(taskTrackerNodeGroup, taskId);
+            jobPo = appContext.getRepeatJobQueue().getJob(taskTrackerNodeGroup,taskTrackerSubNodeGroup, taskId);
         }
         if (jobPo == null) {
-            jobPo = appContext.getExecutableJobQueue().getJob(taskTrackerNodeGroup, taskId);
+            jobPo = appContext.getExecutableJobQueue().getJob(taskTrackerNodeGroup,taskTrackerSubNodeGroup, taskId);
         }
         if (jobPo == null) {
-            jobPo = appContext.getSuspendJobQueue().getJob(taskTrackerNodeGroup, taskId);
+            jobPo = appContext.getSuspendJobQueue().getJob(taskTrackerNodeGroup,taskTrackerSubNodeGroup, taskId);
         }
 
         if (jobPo != null) {
             // 队列都remove下吧
-            appContext.getExecutableJobQueue().removeBatch(jobPo.getRealTaskId(), jobPo.getTaskTrackerNodeGroup());
+            appContext.getExecutableJobQueue().removeBatch(jobPo.getRealTaskId(),taskTrackerSubNodeGroup, jobPo.getTaskTrackerNodeGroup());
             if (jobPo.isCron()) {
                 appContext.getCronJobQueue().remove(jobPo.getJobId());
             } else if (jobPo.isRepeatable()) {

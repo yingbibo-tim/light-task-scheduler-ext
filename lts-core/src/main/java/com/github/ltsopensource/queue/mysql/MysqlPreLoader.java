@@ -30,7 +30,7 @@ public class MysqlPreLoader extends AbstractPreLoader {
     }
 
     @Override
-    protected JobPo getJob(String taskTrackerNodeGroup, String jobId) {
+    protected JobPo getJob(String taskTrackerNodeGroup,String taskTrackerSubNodeGroup,String jobId) {
         return new SelectSql(sqlTemplate)
                 .select()
                 .all()
@@ -38,6 +38,7 @@ public class MysqlPreLoader extends AbstractPreLoader {
                 .table(getTableName(taskTrackerNodeGroup))
                 .where("job_id = ?", jobId)
                 .and("task_tracker_node_group = ?", taskTrackerNodeGroup)
+                .and("task_tracker_sub_node_group = ?",taskTrackerSubNodeGroup)
                 .single(RshHolder.JOB_PO_RSH);
     }
 
@@ -66,7 +67,7 @@ public class MysqlPreLoader extends AbstractPreLoader {
 
 
     @Override
-    protected List<JobPo> load(String loadTaskTrackerNodeGroup, int loadSize) {
+    protected List<JobPo> load(String loadTaskTrackerNodeGroup,String subTaskGroupNodeName, int loadSize) {
         try {
             return new SelectSql(sqlTemplate)
                     .select()
@@ -75,6 +76,7 @@ public class MysqlPreLoader extends AbstractPreLoader {
                     .table(getTableName(loadTaskTrackerNodeGroup))
                     .where("is_running = ?", false)
                     .and("trigger_time< ?", SystemClock.now())
+                    .and("task_tracker_sub_node_group = ?",subTaskGroupNodeName) // 增加子节点
                     .orderBy()
                     .column("priority", OrderByType.ASC)
                     .column("trigger_time", OrderByType.ASC)

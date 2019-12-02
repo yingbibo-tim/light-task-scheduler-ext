@@ -18,6 +18,7 @@ public interface ExecutableJobQueue extends JobQueue {
 
     /**
      * 删除
+     * TODO 可能要加上subNodeName
      */
     boolean removeQueue(String taskTrackerNodeGroup);
 
@@ -31,9 +32,9 @@ public interface ExecutableJobQueue extends JobQueue {
      */
     boolean remove(String taskTrackerNodeGroup, String jobId);
 
-    long countJob(String realTaskId, String taskTrackerNodeGroup);
+    long countJob(String realTaskId, String taskTrackerNodeGroup,String taskTrackerSubNodeGroup);
 
-    boolean removeBatch(String realTaskId, String taskTrackerNodeGroup);
+    boolean removeBatch(String realTaskId, String taskTrackerNodeGroup,String taskTrackerSubNodeGroup);
 
     /**
      * reset , runnable
@@ -48,5 +49,5 @@ public interface ExecutableJobQueue extends JobQueue {
     /**
      * 得到JobPo
      */
-    JobPo getJob(String taskTrackerNodeGroup, String taskId);
+    JobPo getJob(String taskTrackerNodeGroup,String taskTrackerSubNodeGroup, String taskId);
 }

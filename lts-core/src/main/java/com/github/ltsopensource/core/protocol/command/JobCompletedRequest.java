@@ -21,6 +21,9 @@ public class JobCompletedRequest extends AbstractRemotingCommandBody {
     @NotNull
     private List<JobRunResult> jobRunResults;
 
+    @NotNull
+    private String taskTrackerSubNodeGroup;
+
     // 是否是重发(重发是批量发)
     private boolean reSend = false;
 
@@ -46,6 +49,14 @@ public class JobCompletedRequest extends AbstractRemotingCommandBody {
 
     public void setJobRunResults(List<JobRunResult> jobRunResults) {
         this.jobRunResults = jobRunResults;
+    }
+
+    public String getTaskTrackerSubNodeGroup() {
+        return taskTrackerSubNodeGroup;
+    }
+
+    public void setTaskTrackerSubNodeGroup(String taskTrackerSubNodeGroup) {
+        this.taskTrackerSubNodeGroup = taskTrackerSubNodeGroup;
     }
 
     public void addJobResult(JobRunResult jobRunResult) {

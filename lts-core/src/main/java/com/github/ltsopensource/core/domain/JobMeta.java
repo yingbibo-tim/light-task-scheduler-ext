@@ -23,6 +23,8 @@ public class JobMeta implements Serializable {
     private Integer repeatedCount;
     private String realTaskId;
     private JobType jobType;
+    private String jobGroupName;
+    private String jobSubGroupName;
 
     public JobMeta() {
     }
@@ -93,6 +95,22 @@ public class JobMeta implements Serializable {
 
     public void setRealTaskId(String realTaskId) {
         this.realTaskId = realTaskId;
+    }
+
+    public String getJobGroupName() {
+        return jobGroupName;
+    }
+
+    public void setJobGroupName(String jobGroupName) {
+        this.jobGroupName = jobGroupName;
+    }
+
+    public String getJobSubGroupName() {
+        return jobSubGroupName;
+    }
+
+    public void setJobSubGroupName(String jobSubGroupName) {
+        this.jobSubGroupName = jobSubGroupName;
     }
 
     @Override

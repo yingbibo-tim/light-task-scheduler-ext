@@ -91,7 +91,7 @@ public class JobPushProcessor extends AbstractProcessor {
 
         for (JobMeta jobMeta : jobMetaList) {
             try {
-                appContext.getRunnerPool().execute(jobMeta, jobRunnerCallback);
+                appContext.getRunnerPool(jobMeta.getJobSubGroupName()).execute(jobMeta, jobRunnerCallback);
             } catch (NoAvailableJobRunnerException e) {
                 if (failedJobIds == null) {
                     failedJobIds = new ArrayList<String>();
@@ -124,6 +124,7 @@ public class JobPushProcessor extends AbstractProcessor {
             jobRunResult.setAction(response.getAction());
             jobRunResult.setMsg(response.getMsg());
             JobCompletedRequest requestBody = appContext.getCommandBodyWrapper().wrapper(new JobCompletedRequest());
+            requestBody.setTaskTrackerSubNodeGroup(response.getJobMeta().getJobSubGroupName());
             requestBody.addJobResult(jobRunResult);
             requestBody.setReceiveNewJob(response.isReceiveNewJob());     // 设置可以接受新任务
 

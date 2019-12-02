@@ -65,7 +65,7 @@ public class MysqlExecutingJobQueue extends AbstractMysqlJobQueue implements Exe
     }
 
     @Override
-    public JobPo getJob(String taskTrackerNodeGroup, String taskId) {
+    public JobPo getJob(String taskTrackerNodeGroup,String taskTrackerSubNodeGroup,String taskId) {
         return new SelectSql(getSqlTemplate())
                 .select()
                 .all()
@@ -73,6 +73,7 @@ public class MysqlExecutingJobQueue extends AbstractMysqlJobQueue implements Exe
                 .table(getTableName())
                 .where("task_id = ?", taskId)
                 .and("task_tracker_node_group = ?", taskTrackerNodeGroup)
+                .and("task_tracker_sub_node_group = ?",taskTrackerSubNodeGroup)
                 .single(RshHolder.JOB_PO_RSH);
     }
 

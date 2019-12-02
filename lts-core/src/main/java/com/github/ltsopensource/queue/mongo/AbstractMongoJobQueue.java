@@ -32,6 +32,7 @@ public abstract class AbstractMongoJobQueue extends MongoRepository implements J
         addCondition(query, "taskId", request.getTaskId());
         addCondition(query, "realTaskId", request.getRealTaskId());
         addCondition(query, "taskTrackerNodeGroup", request.getTaskTrackerNodeGroup());
+        addCondition(query, "taskTrackerSubNodeGroup", request.getTaskTrackerSubNodeGroup());
         addCondition(query, "jobType", request.getJobType());
         addCondition(query, "submitNodeGroup", request.getSubmitNodeGroup());
         addCondition(query, "needFeedback", request.getNeedFeedback());
@@ -85,6 +86,7 @@ public abstract class AbstractMongoJobQueue extends MongoRepository implements J
         addUpdateField(operations, "relyOnPrevCycle", request.getRelyOnPrevCycle() == null ? true : request.getRelyOnPrevCycle());
         addUpdateField(operations, "submitNodeGroup", request.getSubmitNodeGroup());
         addUpdateField(operations, "taskTrackerNodeGroup", request.getTaskTrackerNodeGroup());
+        addUpdateField(operations, "taskTrackerSubNodeGroup", request.getTaskTrackerSubNodeGroup());
         addUpdateField(operations, "repeatCount", request.getRepeatCount());
         addUpdateField(operations, "repeatInterval", request.getRepeatInterval());
         addUpdateField(operations, "gmtModified", SystemClock.now());
@@ -93,12 +95,14 @@ public abstract class AbstractMongoJobQueue extends MongoRepository implements J
 
     @Override
     public boolean selectiveUpdateByTaskId(JobQueueReq request) {
-        Assert.hasLength(request.getRealTaskId(), "Only allow update by realTaskId and taskTrackerNodeGroup");
-        Assert.hasLength(request.getTaskTrackerNodeGroup(), "Only allow update by realTaskId and taskTrackerNodeGroup");
+        Assert.hasLength(request.getRealTaskId(), "Only allow update by realTaskId and taskTrackerNodeGroup and taskTrackerSubNodeGroup");
+        Assert.hasLength(request.getTaskTrackerNodeGroup(), "Only allow update by realTaskId and taskTrackerNodeGroup and taskTrackerSubNodeGroup");
+        Assert.hasLength(request.getTaskTrackerSubNodeGroup(), "Only allow update by realTaskId and taskTrackerNodeGroup and taskTrackerSubNodeGroup");
 
         Query<JobPo> query = template.createQuery(getTargetTable(request.getTaskTrackerNodeGroup()), JobPo.class);
         query.field("realTaskId").equal(request.getRealTaskId());
         query.field("taskTrackerNodeGroup").equal(request.getTaskTrackerNodeGroup());
+        query.field("taskTrackerSubNodeGroup").equal(request.getTaskTrackerSubNodeGroup());
 
         UpdateOperations<JobPo> operations = buildUpdateOperations(request);
         UpdateResults ur = template.update(query, operations);

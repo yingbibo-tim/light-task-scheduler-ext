@@ -19,7 +19,7 @@ import java.util.List;
 /**
  * @author Robert HG (254963746@qq.com) on 5/31/15.
  */
-public abstract class AbstractMysqlJobQueue extends JdbcAbstractAccess implements JobQueue {
+public abstract class  AbstractMysqlJobQueue extends JdbcAbstractAccess implements JobQueue {
 
     public AbstractMysqlJobQueue(Config config) {
         super(config);
@@ -40,6 +40,7 @@ public abstract class AbstractMysqlJobQueue extends JdbcAbstractAccess implement
                         "gmt_modified",
                         "submit_node_group",
                         "task_tracker_node_group",
+                        "task_tracker_sub_node_group",
                         "ext_params",
                         "internal_ext_params",
                         "is_running",
@@ -62,6 +63,7 @@ public abstract class AbstractMysqlJobQueue extends JdbcAbstractAccess implement
                         jobPo.getGmtModified(),
                         jobPo.getSubmitNodeGroup(),
                         jobPo.getTaskTrackerNodeGroup(),
+                        jobPo.getTaskTrackerSubNodeGroup(),
                         JSON.toJSONString(jobPo.getExtParams()),
                         JSON.toJSONString(jobPo.getInternalExtParams()),
                         jobPo.isRunning(),
@@ -75,6 +77,8 @@ public abstract class AbstractMysqlJobQueue extends JdbcAbstractAccess implement
                 .doInsert() == 1;
     }
 
+
+    @Override
     public PaginationRsp<JobPo> pageSelect(JobQueueReq request) {
 
         PaginationRsp<JobPo> response = new PaginationRsp<JobPo>();
@@ -109,6 +113,7 @@ public abstract class AbstractMysqlJobQueue extends JdbcAbstractAccess implement
 
     protected abstract String getTableName(JobQueueReq request);
 
+    @Override
     public boolean selectiveUpdateByJobId(JobQueueReq request) {
         Assert.hasLength(request.getJobId(), "Only allow update by jobId");
 
@@ -120,12 +125,13 @@ public abstract class AbstractMysqlJobQueue extends JdbcAbstractAccess implement
 
     @Override
     public boolean selectiveUpdateByTaskId(JobQueueReq request) {
-        Assert.hasLength(request.getRealTaskId(), "Only allow update by realTaskId and taskTrackerNodeGroup");
-        Assert.hasLength(request.getTaskTrackerNodeGroup(), "Only allow update by realTaskId and taskTrackerNodeGroup");
-
+        Assert.hasLength(request.getRealTaskId(), "Only allow update by realTaskId and taskTrackerNodeGroup and taskTrackerSubNodeGroup");
+        Assert.hasLength(request.getTaskTrackerNodeGroup(), "Only allow update by realTaskId and taskTrackerNodeGroup and taskTrackerSubNodeGroup");
+        Assert.hasText(request.getTaskTrackerSubNodeGroup(),"Only allow update by realTaskId and taskTrackerNodeGroup and taskTrackerSubNodeGroup");
         UpdateSql sql = buildUpdateSqlPrefix(request);
         return sql.where("real_task_id = ?", request.getRealTaskId())
                 .and("task_tracker_node_group = ?", request.getTaskTrackerNodeGroup())
+                .and("task_tracker_sub_node_group = ?", request.getTaskTrackerSubNodeGroup())
                 .doUpdate() == 1;
     }
 
@@ -142,6 +148,7 @@ public abstract class AbstractMysqlJobQueue extends JdbcAbstractAccess implement
                 .setOnNotNull("rely_on_prev_cycle", request.getRelyOnPrevCycle() == null ? true : request.getRelyOnPrevCycle())
                 .setOnNotNull("submit_node_group", request.getSubmitNodeGroup())
                 .setOnNotNull("task_tracker_node_group", request.getTaskTrackerNodeGroup())
+                .setOnNotNull("task_tracker_sub_node_group", request.getTaskTrackerSubNodeGroup())
                 .setOnNotNull("repeat_count", request.getRepeatCount())
                 .setOnNotNull("repeat_interval", request.getRepeatInterval())
                 .setOnNotNull("gmt_modified", SystemClock.now());
@@ -153,6 +160,7 @@ public abstract class AbstractMysqlJobQueue extends JdbcAbstractAccess implement
                 .andOnNotEmpty("task_id = ?", request.getTaskId())
                 .andOnNotEmpty("real_task_id = ?", request.getRealTaskId())
                 .andOnNotEmpty("task_tracker_node_group = ?", request.getTaskTrackerNodeGroup())
+                .andOnNotEmpty("task_tracker_sub_node_group = ?", request.getTaskTrackerSubNodeGroup())
                 .andOnNotEmpty("job_type = ?", request.getJobType())
                 .andOnNotEmpty("submit_node_group = ?", request.getSubmitNodeGroup())
                 .andOnNotNull("need_feedback = ?", request.getNeedFeedback())

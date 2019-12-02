@@ -91,18 +91,19 @@ public class JobClient<T extends JobClientNode, Context extends AppContext> exte
     /**
      * 取消任务
      */
-    public Response cancelJob(String taskId, String taskTrackerNodeGroup) {
+    public Response cancelJob(String taskId, String taskTrackerNodeGroup,String taskTrackerSubNodeGroup) {
         checkStart();
 
         final Response response = new Response();
 
         Assert.hasText(taskId, "taskId can not be empty");
         Assert.hasText(taskTrackerNodeGroup, "taskTrackerNodeGroup can not be empty");
+        Assert.hasText(taskTrackerSubNodeGroup,"taskTrackerSubNodeGroup can not be empty");
 
         JobCancelRequest request = CommandBodyWrapper.wrapper(appContext, new JobCancelRequest());
         request.setTaskId(taskId);
         request.setTaskTrackerNodeGroup(taskTrackerNodeGroup);
-
+        request.setTaskTrackerSubNodeGroup(taskTrackerSubNodeGroup);
         RemotingCommand requestCommand = RemotingCommand.createRequestCommand(
                 JobProtos.RequestCode.CANCEL_JOB.code(), request);
 
@@ -110,7 +111,7 @@ public class JobClient<T extends JobClientNode, Context extends AppContext> exte
             RemotingCommand remotingResponse = remotingClient.invokeSync(requestCommand);
 
             if (JobProtos.ResponseCode.JOB_CANCEL_SUCCESS.code() == remotingResponse.getCode()) {
-                LOGGER.info("Cancel job success taskId={}, taskTrackerNodeGroup={} ", taskId, taskTrackerNodeGroup);
+                LOGGER.info("Cancel job success taskId={}, taskTrackerNodeGroup={} taskTrackerSubNodeGroup={}", taskId, taskTrackerNodeGroup,taskTrackerSubNodeGroup);
                 response.setSuccess(true);
                 return response;
             }

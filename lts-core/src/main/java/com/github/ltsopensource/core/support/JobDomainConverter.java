@@ -33,7 +33,7 @@ public class JobDomainConverter {
         jobPo.setGmtModified(jobPo.getGmtCreated());
         jobPo.setSubmitNodeGroup(job.getSubmitNodeGroup());
         jobPo.setTaskTrackerNodeGroup(job.getTaskTrackerNodeGroup());
-
+        jobPo.setTaskTrackerSubNodeGroup(job.getTaskTrackerSubNodeGroup());
         if (CollectionUtils.isNotEmpty(job.getExtParams())) {
             Set<String> removeKeySet = null;
             for (Map.Entry<String, String> entry : job.getExtParams().entrySet()) {
@@ -96,6 +96,7 @@ public class JobDomainConverter {
         job.setSubmitNodeGroup(jobPo.getSubmitNodeGroup());
         job.setTaskId(jobPo.getTaskId());
         job.setTaskTrackerNodeGroup(jobPo.getTaskTrackerNodeGroup());
+        job.setTaskTrackerSubNodeGroup(jobPo.getTaskTrackerSubNodeGroup());
         job.setNeedFeedback(jobPo.isNeedFeedback());
         job.setCronExpression(jobPo.getCronExpression());
         job.setTriggerTime(jobPo.getTriggerTime());
@@ -111,6 +112,8 @@ public class JobDomainConverter {
         jobMeta.setRetryTimes(jobPo.getRetryTimes() == null ? 0 : jobPo.getRetryTimes());
         jobMeta.setRepeatedCount(jobPo.getRepeatedCount());
         jobMeta.setJobType(jobPo.getJobType());
+        jobMeta.setJobGroupName(jobPo.getTaskTrackerNodeGroup());
+        jobMeta.setJobSubGroupName(jobPo.getTaskTrackerSubNodeGroup());
         return jobMeta;
     }
 
@@ -134,6 +137,7 @@ public class JobDomainConverter {
         jobLogPo.setJobType(jobMeta.getJobType());
         jobLogPo.setRealTaskId(jobMeta.getRealTaskId());
         jobLogPo.setTaskTrackerNodeGroup(job.getTaskTrackerNodeGroup());
+        jobLogPo.setTaskTrackerSubNodeGroup(job.getTaskTrackerSubNodeGroup());
         jobLogPo.setNeedFeedback(job.isNeedFeedback());
         jobLogPo.setRetryTimes(jobMeta.getRetryTimes());
         jobLogPo.setMaxRetryTimes(job.getMaxRetryTimes());
@@ -159,6 +163,7 @@ public class JobDomainConverter {
         jobLogPo.setTaskId(jobPo.getTaskId());
         jobLogPo.setRealTaskId(jobPo.getRealTaskId());
         jobLogPo.setTaskTrackerNodeGroup(jobPo.getTaskTrackerNodeGroup());
+        jobLogPo.setTaskTrackerSubNodeGroup(jobPo.getTaskTrackerSubNodeGroup());
         jobLogPo.setNeedFeedback(jobPo.isNeedFeedback());
         jobLogPo.setJobId(jobPo.getJobId());
         jobLogPo.setCronExpression(jobPo.getCronExpression());

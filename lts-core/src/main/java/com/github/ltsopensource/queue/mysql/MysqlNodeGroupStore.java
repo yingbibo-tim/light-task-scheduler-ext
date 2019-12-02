@@ -68,6 +68,7 @@ public class MysqlNodeGroupStore extends JdbcAbstractAccess implements NodeGroup
                 .list(RshHolder.NODE_GROUP_LIST_RSH);
     }
 
+    @Override
     public PaginationRsp<NodeGroupPo> getNodeGroup(NodeGroupGetReq request) {
         PaginationRsp<NodeGroupPo> response = new PaginationRsp<NodeGroupPo>();
 

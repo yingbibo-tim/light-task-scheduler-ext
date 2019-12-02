@@ -32,7 +32,7 @@ public class JobPullProcessor extends AbstractRemotingProcessor {
         JobPullRequest requestBody = request.getBody();
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("taskTrackerNodeGroup:{}, taskTrackerIdentity:{} , availableThreads:{}", requestBody.getNodeGroup(), requestBody.getIdentity(), requestBody.getAvailableThreads());
+            LOGGER.debug("taskTrackerNodeGroup:{},taskTrackerSubNodeGroup:{} , taskTrackerIdentity:{} , availableThreads:{}", requestBody.getNodeGroup(),requestBody.getTaskTrackerSubNodeGroup(), requestBody.getIdentity(), requestBody.getAvailableThreads());
         }
         jobPusher.push(requestBody);
 

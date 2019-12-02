@@ -31,6 +31,13 @@ public class Job implements Serializable {
     @NotNull
     private String taskTrackerNodeGroup;
 
+    /**
+     * 二级节点
+     * 细分任务用
+     */
+    @NotNull
+    private String taskTrackerSubNodeGroup;
+
     private Map<String, String> extParams;
     // 是否要反馈给客户端
     private boolean needFeedback = false;
@@ -94,6 +101,14 @@ public class Job implements Serializable {
 
     public void setTaskTrackerNodeGroup(String taskTrackerNodeGroup) {
         this.taskTrackerNodeGroup = taskTrackerNodeGroup;
+    }
+
+    public String getTaskTrackerSubNodeGroup() {
+        return taskTrackerSubNodeGroup;
+    }
+
+    public void setTaskTrackerSubNodeGroup(String taskTrackerSubNodeGroup) {
+        this.taskTrackerSubNodeGroup = taskTrackerSubNodeGroup;
     }
 
     public boolean isNeedFeedback() {
@@ -214,6 +229,15 @@ public class Job implements Serializable {
         if (taskTrackerNodeGroup.length() > 64) {
             throw new JobSubmitException("taskTrackerNodeGroup length should not great than 64! job is " + toString());
         }
+
+        if(StringUtils.isEmpty(taskTrackerSubNodeGroup)){
+            throw new JobSubmitException("taskTrackerNodeGroup length should not great than 64! job is " + toString());
+        }
+
+        if (taskTrackerSubNodeGroup.length() > 64) {
+            throw new JobSubmitException("taskSubTrackerNodeGroup length should not great than 64! job is " + toString());
+        }
+
         if (StringUtils.isNotEmpty(cronExpression)) {
             if (!CronExpression.isValidExpression(cronExpression)) {
                 throw new JobSubmitException("cronExpression invalid! job is " + toString());

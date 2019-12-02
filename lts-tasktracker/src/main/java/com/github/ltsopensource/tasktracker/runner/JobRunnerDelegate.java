@@ -12,6 +12,7 @@ import com.github.ltsopensource.core.support.SystemClock;
 import com.github.ltsopensource.tasktracker.Result;
 import com.github.ltsopensource.tasktracker.domain.Response;
 import com.github.ltsopensource.tasktracker.domain.TaskTrackerAppContext;
+import com.github.ltsopensource.tasktracker.expcetion.NoAvailableJobRunnerException;
 import com.github.ltsopensource.tasktracker.logger.BizLogger;
 import com.github.ltsopensource.tasktracker.logger.BizLoggerAdapter;
 import com.github.ltsopensource.tasktracker.logger.BizLoggerFactory;
@@ -79,9 +80,11 @@ public class JobRunnerDelegate implements Runnable {
                         appContext.getRemotingClient(), appContext);
 
                 try {
-                    appContext.getRunnerPool().getRunningJobManager()
+                    appContext.getRunnerPool(jobMeta.getJobSubGroupName()).getRunningJobManager()
                             .in(jobMeta.getJobId(), this);
-                    this.curJobRunner = appContext.getRunnerPool().getRunnerFactory().newRunner();
+                    this.curJobRunner = appContext.getRunnerPool(jobMeta.getJobSubGroupName()).getRunnerFactory().newRunner();
+
+                    //具体的执行位置
                     Result result = this.curJobRunner.run(buildJobContext(logger, jobMeta));
 
                     if (result == null) {
@@ -110,8 +113,12 @@ public class JobRunnerDelegate implements Runnable {
                     LOGGER.error("Job execute error : {}, time: {}, {}", jobMeta.getJob(), time, t.getMessage(), t);
                 } finally {
                     checkInterrupted(logger);
-                    appContext.getRunnerPool().getRunningJobManager()
-                            .out(jobMeta.getJobId());
+                    try {
+                        appContext.getRunnerPool(jobMeta.getJobSubGroupName()).getRunningJobManager()
+                                .out(jobMeta.getJobId());
+                    } catch (NoAvailableJobRunnerException e) {
+                        LOGGER.error("Job execute error : {}", jobMeta.getJob(), e.getMessage());
+                    }
                 }
                 // 统计数据
                 stat(response.getAction());

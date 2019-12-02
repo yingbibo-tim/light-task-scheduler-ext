@@ -17,9 +17,12 @@ import com.github.ltsopensource.jvmmonitor.JVMMonitor;
 import com.github.ltsopensource.remoting.exception.RemotingCommandFieldCheckException;
 import com.github.ltsopensource.remoting.protocol.RemotingCommand;
 import com.github.ltsopensource.tasktracker.domain.TaskTrackerAppContext;
+import com.github.ltsopensource.tasktracker.expcetion.NoAvailableJobRunnerException;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -39,19 +42,19 @@ public class JobPullMachine {
     private static final Logger LOGGER = LoggerFactory.getLogger(JobPullMachine.class.getSimpleName());
 
     // 定时检查TaskTracker是否有空闲的线程，如果有，那么向JobTracker发起任务pull请求
-    private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1, new NamedThreadFactory("LTS-JobPullMachine-Executor", true));
-    private ScheduledFuture<?> scheduledFuture;
+    private ScheduledExecutorService executorService = null;
     private AtomicBoolean start = new AtomicBoolean(false);
     private TaskTrackerAppContext appContext;
-    private Runnable worker;
+
+    private Map<String,ScheduledFuture<?>> scheduledFutureMap = new HashMap<String, ScheduledFuture<?>>();
     private int jobPullFrequency;
     // 是否启用机器资源检查
     private boolean machineResCheckEnable = false;
 
     public JobPullMachine(final TaskTrackerAppContext appContext) {
-        this.appContext = appContext;
+	    executorService = Executors.newScheduledThreadPool(appContext.getConfig().getSubNodeGroupMap().size(), new NamedThreadFactory("LTS-JobPullMachine-Executor", true));
+	    this.appContext = appContext;
         this.jobPullFrequency = appContext.getConfig().getParameter(ExtConfig.JOB_PULL_FREQUENCY, Constants.DEFAULT_JOB_PULL_FREQUENCY);
-
         this.machineResCheckEnable = appContext.getConfig().getParameter(ExtConfig.LB_MACHINE_RES_CHECK_ENABLE, false);
 
         appContext.getEventCenter().subscribe(
@@ -67,32 +70,36 @@ public class JobPullMachine {
                                 }
                             }
                         }), EcTopic.JOB_TRACKER_AVAILABLE, EcTopic.NO_JOB_TRACKER_AVAILABLE);
-        this.worker = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    if (!start.get()) {
-                        return;
-                    }
-                    if (!isMachineResEnough()) {
-                        // 如果机器资源不足,那么不去取任务
-                        return;
-                    }
-                    sendRequest();
-                } catch (Exception e) {
-                    LOGGER.error("Job pull machine run error!", e);
-                }
-            }
-        };
     }
 
     private void start() {
         try {
             if (start.compareAndSet(false, true)) {
-                if (scheduledFuture == null) {
-                    scheduledFuture = executorService.scheduleWithFixedDelay(worker, jobPullFrequency * 1000, jobPullFrequency * 1000, TimeUnit.MILLISECONDS);
-                }
-                LOGGER.info("Start Job pull machine success!");
+
+            	Map<String,Integer> workerConfigMap = appContext.getConfig().getSubNodeGroupMap();
+            	for(final String subGroupNodeName:workerConfigMap.keySet()){
+            		Runnable worker =  new Runnable() {
+			            @Override
+			            public void run() {
+				            try {
+					            if (!start.get()) {
+						            return;
+					            }
+					            if (!isMachineResEnough()) {
+						            // 如果机器资源不足,那么不去取任务
+						            return;
+					            }
+					            sendRequest(subGroupNodeName);
+				            } catch (Exception e) {
+					            LOGGER.error("Job[{}] pull machine run error!",subGroupNodeName, e);
+				            }
+			            }
+		            };
+
+		            ScheduledFuture<?> scheduledFuture =  executorService.scheduleWithFixedDelay(worker, jobPullFrequency * 1000, jobPullFrequency * 1000, TimeUnit.MILLISECONDS);
+		            scheduledFutureMap.put(subGroupNodeName,scheduledFuture);
+		            LOGGER.info("Start Job pull machine success!");
+	            }
             }
         } catch (Throwable t) {
             LOGGER.error("Start Job pull machine failed!", t);
@@ -114,8 +121,8 @@ public class JobPullMachine {
     /**
      * 发送Job pull 请求
      */
-    private void sendRequest() throws RemotingCommandFieldCheckException {
-        int availableThreads = appContext.getRunnerPool().getAvailablePoolSize();
+    private void sendRequest(String subGroupNodeName) throws RemotingCommandFieldCheckException, NoAvailableJobRunnerException {
+        int availableThreads = appContext.getRunnerPool(subGroupNodeName).getAvailablePoolSize();
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("current availableThreads:{}", availableThreads);
         }
@@ -124,8 +131,11 @@ public class JobPullMachine {
         }
         JobPullRequest requestBody = appContext.getCommandBodyWrapper().wrapper(new JobPullRequest());
         requestBody.setAvailableThreads(availableThreads);
-        RemotingCommand request = RemotingCommand.createRequestCommand(JobProtos.RequestCode.JOB_PULL.code(), requestBody);
 
+       //TODO 加入子分类级别
+        requestBody.setTaskTrackerNodeGroup(requestBody.getNodeGroup());
+        requestBody.setTaskTrackerSubNodeGroup(subGroupNodeName);
+        RemotingCommand request = RemotingCommand.createRequestCommand(JobProtos.RequestCode.JOB_PULL.code(), requestBody);
         try {
             RemotingCommand responseCommand = appContext.getRemotingClient().invokeSync(request);
             if (responseCommand == null) {

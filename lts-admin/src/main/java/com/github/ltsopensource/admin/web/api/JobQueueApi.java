@@ -69,7 +69,7 @@ public class JobQueueApi extends AbstractMVC {
         PaginationRsp<JobPo> rsp = new PaginationRsp<JobPo>();
         List<JobPo> rows = new ArrayList<JobPo>();
         for (JobPo jobPo : paginationRsp.getRows()) {
-            if (appContext.getExecutingJobQueue().getJob(jobPo.getTaskTrackerNodeGroup(), jobPo.getTaskId()) == null) {
+            if (appContext.getExecutingJobQueue().getJob(jobPo.getTaskTrackerNodeGroup(),jobPo.getTaskTrackerSubNodeGroup(), jobPo.getTaskId()) == null) {
                 // 没有正在执行, 则显示在等待执行列表中
                 rows.add(jobPo);
             }

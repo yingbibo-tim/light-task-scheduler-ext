@@ -1,5 +1,6 @@
 package com.github.ltsopensource.tasktracker.runner;
 
+import com.github.ltsopensource.core.constant.Constants;
 import com.github.ltsopensource.core.constant.EcTopic;
 import com.github.ltsopensource.core.domain.JobMeta;
 import com.github.ltsopensource.core.factory.NamedThreadFactory;
@@ -24,21 +25,23 @@ public class RunnerPool {
     private final Logger LOGGER = LoggerFactory.getLogger(RunnerPool.class);
 
     private ThreadPoolExecutor threadPoolExecutor = null;
-
+    private Integer threadNum;
     private RunnerFactory runnerFactory;
     private TaskTrackerAppContext appContext;
     private RunningJobManager runningJobManager;
 
-    public RunnerPool(final TaskTrackerAppContext appContext) {
+    public RunnerPool(final TaskTrackerAppContext appContext,Integer threadNum) {
         this.appContext = appContext;
         this.runningJobManager = new RunningJobManager();
-
+        this.threadNum = threadNum;
         threadPoolExecutor = initThreadPoolExecutor();
 
         runnerFactory = appContext.getRunnerFactory();
         if (runnerFactory == null) {
             runnerFactory = new DefaultRunnerFactory(appContext);
         }
+
+        //TODO 需要修改成对应的subGroupNode 的线程数监控
         // 向事件中心注册事件, 改变工作线程大小
         appContext.getEventCenter().subscribe(
                 new EventSubscriber(appContext.getConfig().getIdentity(), new Observer() {
@@ -49,10 +52,13 @@ public class RunnerPool {
                 }), EcTopic.WORK_THREAD_CHANGE);
     }
 
+    /**
+     * 工作线程池
+     * @return ThreadPoolExecutor 线程池
+     */
     private ThreadPoolExecutor initThreadPoolExecutor() {
-        int workThreads = appContext.getConfig().getWorkThreads();
 
-        return new ThreadPoolExecutor(workThreads, workThreads, 30, TimeUnit.SECONDS,
+        return new ThreadPoolExecutor(threadNum, threadNum, 30, TimeUnit.SECONDS,
                 new SynchronousQueue<Runnable>(),           // 直接提交给线程而不保持它们
                 new NamedThreadFactory("JobRunnerPool"),
                 new ThreadPoolExecutor.AbortPolicy());

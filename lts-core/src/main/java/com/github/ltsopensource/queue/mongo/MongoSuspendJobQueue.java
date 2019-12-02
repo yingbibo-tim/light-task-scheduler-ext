@@ -31,8 +31,8 @@ public class MongoSuspendJobQueue extends AbstractMongoJobQueue implements Suspe
         if (CollectionUtils.sizeOf(indexInfo) <= 1) {
             template.ensureIndex("idx_jobId", "jobId", true, true);
             template.ensureIndex("idx_jobType", "jobType");
-            template.ensureIndex("idx_taskId_taskTrackerNodeGroup", "taskId, taskTrackerNodeGroup", true, true);
-            template.ensureIndex("idx_realTaskId_taskTrackerNodeGroup", "realTaskId, taskTrackerNodeGroup");
+            template.ensureIndex("idx_taskId_taskTrackerNodeGroup_taskTrackerSubNodeGroup", "taskId, taskTrackerNodeGroup, taskTrackerSubNodeGroup", true, true);
+            template.ensureIndex("idx_realTaskId_taskTrackerNodeGroup_taskTrackerSubNodeGroup", "realTaskId, taskTrackerNodeGroup, taskTrackerSubNodeGroup");
         }
     }
 
@@ -68,11 +68,12 @@ public class MongoSuspendJobQueue extends AbstractMongoJobQueue implements Suspe
     }
 
     @Override
-    public JobPo getJob(String taskTrackerNodeGroup, String taskId) {
+    public JobPo getJob(String taskTrackerNodeGroup,String taskTrackerSubNodeGroup,String taskId) {
         String tableName = JobQueueUtils.getExecutableQueueName(taskTrackerNodeGroup);
         Query<JobPo> query = template.createQuery(tableName, JobPo.class);
         query.field("taskId").equal(taskId).
-                field("taskTrackerNodeGroup").equal(taskTrackerNodeGroup);
+                field("taskTrackerNodeGroup").equal(taskTrackerNodeGroup)
+                .field("taskTrackerSubNodeGroup").equal(taskTrackerSubNodeGroup);
         return query.get();
     }
 

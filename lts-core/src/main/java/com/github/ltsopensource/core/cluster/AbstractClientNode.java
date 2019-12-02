@@ -12,6 +12,7 @@ import com.github.ltsopensource.remoting.RemotingClientConfig;
 import com.github.ltsopensource.remoting.RemotingProcessor;
 import com.github.ltsopensource.remoting.RemotingTransporter;
 
+import java.util.Map;
 import java.util.concurrent.Executors;
 
 /**

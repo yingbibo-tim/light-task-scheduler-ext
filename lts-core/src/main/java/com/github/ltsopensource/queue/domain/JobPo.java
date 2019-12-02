@@ -43,6 +43,8 @@ public class JobPo implements Serializable {
      * 执行job 的任务节点
      */
     private String taskTrackerNodeGroup;
+
+    private String taskTrackerSubNodeGroup;
     /**
      * 额外的参数, 需要传给taskTracker的
      */
@@ -190,6 +192,14 @@ public class JobPo implements Serializable {
 
     public void setTaskTrackerNodeGroup(String taskTrackerNodeGroup) {
         this.taskTrackerNodeGroup = taskTrackerNodeGroup;
+    }
+
+    public String getTaskTrackerSubNodeGroup() {
+        return taskTrackerSubNodeGroup;
+    }
+
+    public void setTaskTrackerSubNodeGroup(String taskTrackerSubNodeGroup) {
+        this.taskTrackerSubNodeGroup = taskTrackerSubNodeGroup;
     }
 
     public void setIsRunning(Boolean isRunning) {

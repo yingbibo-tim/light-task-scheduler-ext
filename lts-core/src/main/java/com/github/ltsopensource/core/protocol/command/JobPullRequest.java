@@ -7,14 +7,35 @@ package com.github.ltsopensource.core.protocol.command;
 public class JobPullRequest extends AbstractRemotingCommandBody {
 
 	private static final long serialVersionUID = 9222159289387747395L;
+
+	private String taskTrackerNodeGroup;
+
+	private String taskTrackerSubNodeGroup;
 	
 	private Integer availableThreads;
 
-    public Integer getAvailableThreads() {
+	public String getTaskTrackerNodeGroup() {
+		return taskTrackerNodeGroup;
+	}
+
+	public void setTaskTrackerNodeGroup(String taskTrackerNodeGroup) {
+		this.taskTrackerNodeGroup = taskTrackerNodeGroup;
+	}
+
+	public String getTaskTrackerSubNodeGroup() {
+		return taskTrackerSubNodeGroup;
+	}
+
+	public void setTaskTrackerSubNodeGroup(String taskTrackerSubNodeGroup) {
+		this.taskTrackerSubNodeGroup = taskTrackerSubNodeGroup;
+	}
+
+	public Integer getAvailableThreads() {
         return availableThreads;
     }
 
     public void setAvailableThreads(Integer availableThreads) {
         this.availableThreads = availableThreads;
     }
+
 }

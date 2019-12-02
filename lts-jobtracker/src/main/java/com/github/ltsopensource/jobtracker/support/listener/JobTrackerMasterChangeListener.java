@@ -23,8 +23,8 @@ public class JobTrackerMasterChangeListener implements MasterChangeListener {
             // 如果 master 节点是自己
             // 2. 启动通知客户端失败检查重发的定时器
             appContext.getFeedbackJobSendChecker().start();
-            appContext.getExecutableDeadJobChecker().start();
-            appContext.getExecutingDeadJobChecker().start();
+            appContext.getExecutableDeadJobChecker().start();  //查询等待任务已经发送到consumer上的时候 但是还没执行 1分钟时间
+            appContext.getExecutingDeadJobChecker().start();  //
             appContext.getNonRelyOnPrevCycleJobScheduler().start();
         } else {
             // 如果 master 节点不是自己

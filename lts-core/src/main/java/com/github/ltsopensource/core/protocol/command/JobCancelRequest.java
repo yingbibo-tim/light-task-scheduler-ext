@@ -12,6 +12,8 @@ public class JobCancelRequest extends AbstractRemotingCommandBody{
 
     private String taskTrackerNodeGroup;
 
+    private String taskTrackerSubNodeGroup;
+
     public String getTaskId() {
         return taskId;
     }
@@ -22,6 +24,14 @@ public class JobCancelRequest extends AbstractRemotingCommandBody{
 
     public String getTaskTrackerNodeGroup() {
         return taskTrackerNodeGroup;
+    }
+
+    public String getTaskTrackerSubNodeGroup() {
+        return taskTrackerSubNodeGroup;
+    }
+
+    public void setTaskTrackerSubNodeGroup(String taskTrackerSubNodeGroup) {
+        this.taskTrackerSubNodeGroup = taskTrackerSubNodeGroup;
     }
 
     public void setTaskTrackerNodeGroup(String taskTrackerNodeGroup) {

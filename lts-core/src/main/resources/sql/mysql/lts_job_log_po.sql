@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS `lts_job_log_po` (
   `priority` int(11) COMMENT '优先级',
   `submit_node_group` varchar(64) COMMENT '提交节点组',
   `task_tracker_node_group` varchar(64) COMMENT '执行节点组',
+  `task_tracker_sub_node_group` varchar(64) COMMENT '执行子节点组',
   `ext_params` text COMMENT '用户参数',
   `internal_ext_params` text COMMENT '内部扩展参数 JSON',
   `need_feedback` tinyint(4) COMMENT '是否需要反馈',
@@ -28,6 +29,6 @@ CREATE TABLE IF NOT EXISTS `lts_job_log_po` (
   `repeat_interval` bigint(20) DEFAULT '0' COMMENT '重复间隔',
   PRIMARY KEY (`id`),
   KEY `log_time` (`log_time`),
-  KEY `task_id_task_tracker_node_group` (`task_id`,`task_tracker_node_group`),
-  KEY `idx_realTaskId_taskTrackerNodeGroup` (`real_task_id`, `task_tracker_node_group`)
+  KEY `idx_taskTd_taskTrackerNodeGroup_trackerSubNodeGroup` (`task_id`,`task_tracker_node_group`, `tracker_sub_node_group`),
+  KEY `idx_realTaskId_taskTrackerNodeGroup_trackerSubNodeGroup` (`real_task_id`, `task_tracker_node_group`, `tracker_sub_node_group`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='任务日志';

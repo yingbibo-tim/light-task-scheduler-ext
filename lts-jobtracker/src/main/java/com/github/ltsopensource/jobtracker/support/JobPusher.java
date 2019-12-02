@@ -90,20 +90,22 @@ public class JobPusher {
         return flag;
     }
 
+    //TODO 需要修改
     private void push0(final JobPullRequest request) {
 
         String nodeGroup = request.getNodeGroup();
+        String subNodeGroup = request.getTaskTrackerSubNodeGroup();
         String identity = request.getIdentity();
         // 更新TaskTracker的可用线程数
-        appContext.getTaskTrackerManager().updateTaskTrackerAvailableThreads(nodeGroup,
+        appContext.getTaskTrackerManager().updateTaskTrackerAvailableThreads(nodeGroup,subNodeGroup,
                 identity, request.getAvailableThreads(), request.getTimestamp());
 
         final TaskTrackerNode taskTrackerNode = appContext.getTaskTrackerManager().
-                getTaskTrackerNode(nodeGroup, identity);
+                getTaskTrackerNode(nodeGroup,subNodeGroup, identity);
 
         if (taskTrackerNode == null) {
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("taskTrackerNodeGroup:{}, taskTrackerIdentity:{} , didn't have node.", nodeGroup, identity);
+                LOGGER.debug("taskTrackerNodeGroup:{}, taskTrackerSubNodeGroup:{}, taskTrackerIdentity:{} , didn't have node.", nodeGroup,subNodeGroup, identity);
             }
             return;
         }
@@ -161,9 +163,10 @@ public class JobPusher {
     private JobPushResult send(final RemotingServerDelegate remotingServer, int size, final TaskTrackerNode taskTrackerNode) {
 
         final String nodeGroup = taskTrackerNode.getNodeGroup();
+        final String subNodeGroup = taskTrackerNode.getSubNodeGroup();
         final String identity = taskTrackerNode.getIdentity();
 
-        JobSender.SendResult sendResult = appContext.getJobSender().send(nodeGroup, identity, size, new JobSender.SendInvoker() {
+        JobSender.SendResult sendResult = appContext.getJobSender().send(nodeGroup,subNodeGroup, identity, size, new JobSender.SendInvoker() {
             @Override
             public JobSender.SendResult invoke(final List<JobPo> jobPos) {
 
@@ -188,7 +191,7 @@ public class JobPusher {
                                 }
                                 if (responseCommand.getCode() == JobProtos.ResponseCode.JOB_PUSH_SUCCESS.code()) {
                                     if (LOGGER.isDebugEnabled()) {
-                                        LOGGER.debug("Job push success! nodeGroup=" + nodeGroup + ", identity=" + identity + ", jobList=" + JSON.toJSONString(jobPos));
+                                        LOGGER.debug("Job push success! nodeGroup=" + nodeGroup + ",subNodeGroup="+ subNodeGroup +" ,identity=" + identity + ", jobList=" + JSON.toJSONString(jobPos));
                                     }
                                     pushSuccess.set(true);
                                     stat.incPushJobNum(jobPos.size());
@@ -230,7 +233,7 @@ public class JobPusher {
 
                 if (!pushSuccess.get()) {
                     if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Job push failed! nodeGroup=" + nodeGroup + ", identity=" + identity + ", jobs=" + JSON.toJSONObject(jobPos));
+                        LOGGER.debug("Job push failed! nodeGroup=" + nodeGroup + ", subNodeGroup="+ subNodeGroup + " , identity=" + identity + ", jobs=" + JSON.toJSONObject(jobPos));
                     }
                     for (JobPo jobPo : jobPos) {
                         resumeJob(jobPo);

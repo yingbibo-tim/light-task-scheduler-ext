@@ -33,15 +33,20 @@ public class JobTerminateCmd implements HttpCmdProc {
     public HttpCmdResponse execute(HttpCmdRequest request) throws Exception {
 
         String jobId = request.getParam("jobId");
+        String taskTrackerSubNodeGroup = request.getParam("subNodeGroup");
         if (StringUtils.isEmpty(jobId)) {
             return HttpCmdResponse.newResponse(false, "jobId can't be empty");
         }
+        if(StringUtils.isEmpty(taskTrackerSubNodeGroup)){
+            return HttpCmdResponse.newResponse(false, "taskTrackerSubNodeGroup can't be empty");
 
-        if (!appContext.getRunnerPool().getRunningJobManager().running(jobId)) {
+        }
+
+        if (!appContext.getRunnerPool(taskTrackerSubNodeGroup).getRunningJobManager().running(jobId)) {
             return HttpCmdResponse.newResponse(false, "jobId dose not running in this TaskTracker now");
         }
 
-        appContext.getRunnerPool().getRunningJobManager().terminateJob(jobId);
+        appContext.getRunnerPool(taskTrackerSubNodeGroup).getRunningJobManager().terminateJob(jobId);
 
         return HttpCmdResponse.newResponse(true, "Execute terminate Command success");
     }

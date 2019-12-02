@@ -30,7 +30,7 @@ public class MongoExecutingJobQueue extends AbstractMongoJobQueue implements Exe
         // create index if not exist
         if (CollectionUtils.sizeOf(indexInfo) <= 1) {
             template.ensureIndex("idx_jobId", "jobId", true, true);
-            template.ensureIndex("idx_taskId_taskTrackerNodeGroup", "taskId, taskTrackerNodeGroup", true, true);
+            template.ensureIndex("idx_taskId_taskTrackerNodeGroup_taskTrackerSubNodeGroup", "taskId, taskTrackerNodeGroup, taskTrackerSubNodeGroup", true, true);
             template.ensureIndex("idx_realTaskId_taskTrackerNodeGroup", "realTaskId, taskTrackerNodeGroup");
             template.ensureIndex("idx_jobType", "jobType");
             template.ensureIndex("idx_taskTrackerIdentity", "taskTrackerIdentity");
@@ -77,10 +77,11 @@ public class MongoExecutingJobQueue extends AbstractMongoJobQueue implements Exe
     }
 
     @Override
-    public JobPo getJob(String taskTrackerNodeGroup, String taskId) {
+    public JobPo getJob(String taskTrackerNodeGroup,String taskTrackerSubNodeGroup,String taskId) {
         Query<JobPo> query = template.createQuery(JobPo.class);
         query.field("taskId").equal(taskId).
-                field("taskTrackerNodeGroup").equal(taskTrackerNodeGroup);
+                field("taskTrackerNodeGroup").equal(taskTrackerNodeGroup)
+                .field("taskTrackerSubNodeGroup").equal(taskTrackerSubNodeGroup);
         return query.get();
     }
 

@@ -88,7 +88,7 @@ public class CronJobQueueApi extends AbstractMVC {
                                 appContext.getNoRelyJobGenerator().generateCronJobForInterval(newJobPo, new Date());
                             } else {
                                 // 之前不依赖,现在依赖,需要删除批量任务
-                                appContext.getExecutableJobQueue().removeBatch(oldJobPo.getRealTaskId(), oldJobPo.getTaskTrackerNodeGroup());
+                                appContext.getExecutableJobQueue().removeBatch(oldJobPo.getRealTaskId(), oldJobPo.getTaskTrackerNodeGroup(),oldJobPo.getTaskTrackerSubNodeGroup());
                                 // 添加新的任务
                                 newJobPo.setTriggerTime(nextTriggerTime.getTime());
                                 try {
@@ -100,7 +100,7 @@ public class CronJobQueueApi extends AbstractMVC {
                         } else {
                             // 如果relyOnPrevCycle 没有修改过, 表示relyOnPrevCycle=false, 那么要看cronExpression是否修改过,如果修改过,需要删除重新生成
                             if (cronExpressionChanged) {
-                                appContext.getExecutableJobQueue().removeBatch(oldJobPo.getRealTaskId(), oldJobPo.getTaskTrackerNodeGroup());
+                                appContext.getExecutableJobQueue().removeBatch(oldJobPo.getRealTaskId(), oldJobPo.getTaskTrackerNodeGroup(),oldJobPo.getTaskTrackerSubNodeGroup());
                                 appContext.getNoRelyJobGenerator().generateCronJobForInterval(newJobPo, new Date());
                             } else {
                                 appContext.getExecutableJobQueue().selectiveUpdateByTaskId(request);
@@ -135,7 +135,7 @@ public class CronJobQueueApi extends AbstractMVC {
         boolean success = appContext.getCronJobQueue().remove(request.getJobId());
         if (success) {
             try {
-                appContext.getExecutableJobQueue().removeBatch(jobPo.getRealTaskId(), jobPo.getTaskTrackerNodeGroup());
+                appContext.getExecutableJobQueue().removeBatch(jobPo.getRealTaskId(), jobPo.getTaskTrackerNodeGroup(),jobPo.getTaskTrackerSubNodeGroup());
             } catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);
                 return Builder.build(false, "删除等待执行的任务失败，请手动删除! error:{}" + e.getMessage());
@@ -174,7 +174,7 @@ public class CronJobQueueApi extends AbstractMVC {
         try {
             if (!jobPo.getRelyOnPrevCycle()) {
                 appContext.getCronJobQueue().updateLastGenerateTriggerTime(jobPo.getJobId(), new Date().getTime());
-                appContext.getExecutableJobQueue().removeBatch(jobPo.getRealTaskId(), jobPo.getTaskTrackerNodeGroup());
+                appContext.getExecutableJobQueue().removeBatch(jobPo.getRealTaskId(), jobPo.getTaskTrackerNodeGroup(),jobPo.getTaskTrackerSubNodeGroup());
             } else {
                 appContext.getExecutableJobQueue().remove(request.getTaskTrackerNodeGroup(), request.getJobId());
             }

@@ -21,9 +21,11 @@ public class Node {
     private Integer port = 0;
     private String hostName;
     private String group;
+    private String subGroups;
     private Long createTime;
     // 线程个数
     private Integer threads;
+    private String subThreads;
     // 唯一标识
     private String identity;
     // 命令端口
@@ -100,6 +102,14 @@ public class Node {
         this.group = group;
     }
 
+    public String getSubGroups() {
+        return subGroups;
+    }
+
+    public void setSubGroups(String subGroups) {
+        this.subGroups = subGroups;
+    }
+
     public Long getCreateTime() {
         return createTime;
     }
@@ -114,6 +124,14 @@ public class Node {
 
     public void setThreads(Integer threads) {
         this.threads = threads;
+    }
+
+    public String getSubThreads() {
+        return subThreads;
+    }
+
+    public void setSubThreads(String subThreads) {
+        this.subThreads = subThreads;
     }
 
     public String getIdentity() {

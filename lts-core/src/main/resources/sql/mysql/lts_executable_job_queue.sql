@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS `{tableName}` (
   `gmt_modified` bigint(11) COMMENT '修改时间',
   `submit_node_group` varchar(64) COMMENT '提交节点组,提交客户端的节点组',
   `task_tracker_node_group` varchar(64) COMMENT '执行节点组,执行job的任务节点',
+  `task_tracker_sub_node_group` varchar(64) COMMENT '执行节点组,执行job的任务子节点',
   `ext_params` text COMMENT '用户参数 JSON',
   `internal_ext_params` text COMMENT '内部扩展参数 JSON',
   `is_running` tinyint(1) COMMENT '是否正在执行',
@@ -25,10 +26,10 @@ CREATE TABLE IF NOT EXISTS `{tableName}` (
   `last_generate_trigger_time` bigint(20) DEFAULT '0' COMMENT '最后生成的triggerTime时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_job_id` (`job_id`),
-  UNIQUE KEY `idx_taskId_taskTrackerNodeGroup` (`task_id`, `task_tracker_node_group`),
+  UNIQUE KEY `idx_taskId_taskTrackerNodeGroup_taskTrackerSubNodeGroup` (`task_id`, `task_tracker_node_group`,`task_tracker_sub_node_group`),
   KEY `idx_taskTrackerIdentity` (`task_tracker_identity`),
   KEY `idx_job_type` (`job_type`),
-  KEY `idx_realTaskId_taskTrackerNodeGroup` (`real_task_id`, `task_tracker_node_group`),
+  KEY `idx_realTaskId_taskTrackerNodeGroup_taskTrackerSubNodeGroup` (`real_task_id`, `task_tracker_node_group`, `task_tracker_sub_node_group`),
   KEY `idx_priority_triggerTime_gmtCreated` (`priority`,`trigger_time`,`gmt_created`),
   KEY `idx_isRunning` (`is_running`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='等待执行任务';

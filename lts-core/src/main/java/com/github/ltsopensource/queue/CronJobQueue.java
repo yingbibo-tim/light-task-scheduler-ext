@@ -30,6 +30,6 @@ public interface CronJobQueue extends SchedulerJobQueue {
     /**
      * 得到JobPo
      */
-    JobPo getJob(String taskTrackerNodeGroup, String taskId);
+    JobPo getJob(String taskTrackerNodeGroup,String taskTrackerSubNodeGroup,String taskId);
 
 }

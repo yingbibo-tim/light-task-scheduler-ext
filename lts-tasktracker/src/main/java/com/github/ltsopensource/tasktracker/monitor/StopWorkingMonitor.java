@@ -11,6 +11,7 @@ import com.github.ltsopensource.ec.EventSubscriber;
 import com.github.ltsopensource.ec.Observer;
 import com.github.ltsopensource.tasktracker.domain.TaskTrackerAppContext;
 
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -60,7 +61,10 @@ public class StopWorkingMonitor {
                             if (offlineTimestamp != null &&
                                     SystemClock.now() - offlineTimestamp > Constants.DEFAULT_TASK_TRACKER_OFFLINE_LIMIT_MILLIS) {
                                 // 停止所有任务
-                                appContext.getRunnerPool().stopWorking();
+                                Map<String,Integer> subNodeNameMap = appContext.getConfig().getSubNodeGroupMap();
+                                for(String subNodeName:subNodeNameMap.keySet()) {
+                                    appContext.getRunnerPool(subNodeName).stopWorking();
+                                }
                                 offlineTimestamp = null;
                             }
                         } catch (Throwable t) {

@@ -3,6 +3,7 @@ package com.github.ltsopensource.core.protocol.command;
 import com.github.ltsopensource.remoting.exception.RemotingCommandFieldCheckException;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Robert HG (254963746@qq.com)
@@ -11,20 +12,20 @@ public class JobAskRequest extends AbstractRemotingCommandBody {
 
 	private static final long serialVersionUID = 1993281575847386175L;
 	
-	List<String> jobIds;
+	Map<String,String> jobIdsWithSubNodeMap;
 
-    public List<String> getJobIds() {
-        return jobIds;
+    public Map<String, String> getJobIdsWithSubNodeMap() {
+        return jobIdsWithSubNodeMap;
     }
 
-    public void setJobIds(List<String> jobIds) {
-        this.jobIds = jobIds;
+    public void setJobIdsWithSubNodeMap(Map<String, String> jobIdsWithSubNodeMap) {
+        this.jobIdsWithSubNodeMap = jobIdsWithSubNodeMap;
     }
 
     @Override
     public void checkFields() throws RemotingCommandFieldCheckException {
-        if (jobIds == null || jobIds.size() == 0) {
-            throw new RemotingCommandFieldCheckException("jobIds could not be empty");
+        if (jobIdsWithSubNodeMap == null || jobIdsWithSubNodeMap.size() == 0) {
+            throw new RemotingCommandFieldCheckException("jobIdsWithSubNodeMap could not be empty");
         }
     }
 }

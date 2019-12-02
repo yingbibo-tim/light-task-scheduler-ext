@@ -29,6 +29,7 @@ import com.github.ltsopensource.remoting.ResponseFuture;
 import com.github.ltsopensource.remoting.protocol.RemotingCommand;
 import com.github.ltsopensource.remoting.protocol.RemotingProtos;
 import com.github.ltsopensource.store.jdbc.exception.DupEntryException;
+import com.google.common.collect.Maps;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -148,12 +149,12 @@ public class ExecutingDeadJobChecker {
     private void askTimeoutJob(Channel channel, final List<JobPo> jobPos) {
         try {
             RemotingServerDelegate remotingServer = appContext.getRemotingServer();
-            List<String> jobIds = new ArrayList<String>(jobPos.size());
+            Map<String,String> jobIdsRefSubNodeNodeNameMap = Maps.newHashMap();
             for (JobPo jobPo : jobPos) {
-                jobIds.add(jobPo.getJobId());
+                jobIdsRefSubNodeNodeNameMap.put(jobPo.getJobId(),jobPo.getTaskTrackerSubNodeGroup());
             }
             JobAskRequest requestBody = appContext.getCommandBodyWrapper().wrapper(new JobAskRequest());
-            requestBody.setJobIds(jobIds);
+            requestBody.setJobIdsWithSubNodeMap(jobIdsRefSubNodeNodeNameMap);
             RemotingCommand request = RemotingCommand.createRequestCommand(JobProtos.RequestCode.JOB_ASK.code(), requestBody);
             remotingServer.invokeAsync(channel, request, new AsyncCallback() {
                 @Override
@@ -164,8 +165,8 @@ public class ExecutingDeadJobChecker {
                         List<String> deadJobIds = responseBody.getJobIds();
                         if (CollectionUtils.isNotEmpty(deadJobIds)) {
 
-                            // 睡了1秒再修复, 防止任务刚好执行完正在传输中. 1s可以让完成的正常完成
-                            QuietUtils.sleep(appContext.getConfig().getParameter(ExtConfig.JOB_TRACKER_FIX_EXECUTING_JOB_WAITING_MILLS, 1000L));
+                            // 睡了20秒再修复, 防止任务刚好执行完正在传输中. 20s可以让完成的正常完成
+                            QuietUtils.sleep(appContext.getConfig().getParameter(ExtConfig.JOB_TRACKER_FIX_EXECUTING_JOB_WAITING_MILLS, 20000L));
 
                             for (JobPo jobPo : jobPos) {
                                 if (deadJobIds.contains(jobPo.getJobId())) {

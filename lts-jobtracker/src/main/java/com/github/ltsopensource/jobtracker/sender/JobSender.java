@@ -28,9 +28,9 @@ public class JobSender {
         this.appContext = appContext;
     }
 
-    public SendResult send(String taskTrackerNodeGroup, String taskTrackerIdentity, int size, SendInvoker invoker) {
+    public SendResult send(String taskTrackerNodeGroup,String taskTrackerSubNodeGroup,String taskTrackerIdentity, int size, SendInvoker invoker) {
 
-        List<JobPo> jobPos = fetchJob(taskTrackerNodeGroup, taskTrackerIdentity, size);
+        List<JobPo> jobPos = fetchJob(taskTrackerNodeGroup,taskTrackerSubNodeGroup, taskTrackerIdentity, size);
         if (jobPos.size() == 0) {
             return new SendResult(false, JobPushResult.NO_JOB);
         }
@@ -41,6 +41,7 @@ public class JobSender {
             List<JobLogPo> jobLogPos = new ArrayList<JobLogPo>(jobPos.size());
             for (JobPo jobPo : jobPos) {
                 // 记录日志
+                //TODO jobLogPo 增加task_tracker_sub_node_group
                 JobLogPo jobLogPo = JobDomainConverter.convertJobLog(jobPo);
                 jobLogPo.setSuccess(true);
                 jobLogPo.setLogType(LogType.SENT);
@@ -53,12 +54,12 @@ public class JobSender {
         return sendResult;
     }
 
-    private List<JobPo> fetchJob(String taskTrackerNodeGroup, String taskTrackerIdentity, int size) {
+    private List<JobPo> fetchJob(String taskTrackerNodeGroup,String taskTrackerSubNodeGroup,String taskTrackerIdentity, int size) {
         List<JobPo> jobPos = new ArrayList<JobPo>(size);
 
         for (int i = 0; i < size; i++) {
-            // 从mongo 中取一个可运行的job
-            final JobPo jobPo = appContext.getPreLoader().take(taskTrackerNodeGroup, taskTrackerIdentity);
+            // 从mongo或者mysql里面 中取一个可运行的job
+            final JobPo jobPo = appContext.getPreLoader().take(taskTrackerNodeGroup,taskTrackerSubNodeGroup, taskTrackerIdentity);
             if (jobPo == null) {
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Job push failed: no job! nodeGroup=" + taskTrackerNodeGroup + ", identity=" + taskTrackerIdentity);

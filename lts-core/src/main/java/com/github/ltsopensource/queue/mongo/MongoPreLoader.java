@@ -28,14 +28,16 @@ public class MongoPreLoader extends AbstractPreLoader {
     }
 
     @Override
-    protected JobPo getJob(String taskTrackerNodeGroup, String jobId) {
+    protected JobPo getJob(String taskTrackerNodeGroup,String taskTrackerSubNodeGroup,String jobId) {
         String tableName = JobQueueUtils.getExecutableQueueName(taskTrackerNodeGroup);
         Query<JobPo> query = template.createQuery(tableName, JobPo.class);
-        query.field("jobId").equal(jobId).
-                field("taskTrackerNodeGroup").equal(taskTrackerNodeGroup);
+        query.field("jobId").equal(jobId)
+                .field("taskTrackerNodeGroup").equal(taskTrackerNodeGroup)
+                .field("taskTrackerSubNodeGroup").equal(taskTrackerNodeGroup);
         return query.get();
     }
 
+    @Override
     protected boolean lockJob(String taskTrackerNodeGroup, String jobId, String taskTrackerIdentity, Long triggerTime, Long gmtModified) {
         UpdateOperations<JobPo> operations =
                 template.createUpdateOperations(JobPo.class)
@@ -54,11 +56,13 @@ public class MongoPreLoader extends AbstractPreLoader {
         return updateResult.getUpdatedCount() == 1;
     }
 
-    protected List<JobPo> load(String loadTaskTrackerNodeGroup, int loadSize) {
+    @Override
+    protected List<JobPo> load(String loadTaskTrackerNodeGroup, String taskTrackerSubNodeGroup, int loadSize) {
         // load
         String tableName = JobQueueUtils.getExecutableQueueName(loadTaskTrackerNodeGroup);
         Query<JobPo> query = template.createQuery(tableName, JobPo.class);
         query.field("isRunning").equal(false)
+                .field("taskTrackerSubNodeGroup").equal(taskTrackerSubNodeGroup) //子节点
                 .filter("triggerTime < ", SystemClock.now())
                 .order(" priority, triggerTime , gmtCreated").offset(0).limit(loadSize);
         return query.asList();

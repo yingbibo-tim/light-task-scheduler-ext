@@ -40,9 +40,9 @@ public class RunnerPoolTest {
         appContext.setJobRunnerClass(TestInterruptorJobRunner.class);
 //        appContext.setJobRunnerClass(NormalJobRunner.class);
 
-        RunnerPool runnerPool = new RunnerPool(appContext);
+      //  RunnerPool runnerPool = new RunnerPool(appContext);
 
-        appContext.setRunnerPool(runnerPool);
+      //  appContext.setRunnerPool(runnerPool);
 
         TaskTrackerMStatReporter monitor = new TaskTrackerMStatReporter(appContext);
         appContext.setMStatReporter(monitor);
@@ -63,8 +63,8 @@ public class RunnerPoolTest {
         jobMeta.setJobId("111111");
         jobMeta.setJob(job);
 
-        runnerPool.execute(jobMeta, callback);
-        System.out.println(runnerPool.getAvailablePoolSize());
+       // runnerPool.execute(jobMeta, callback);
+        //System.out.println(runnerPool.getAvailablePoolSize());
 
         try {
             Thread.sleep(5000L);
@@ -72,7 +72,7 @@ public class RunnerPoolTest {
             e.printStackTrace();
         }
         // 5s之后停止
-        runnerPool.stopWorking();
+       // runnerPool.stopWorking();
 
         while (true) {
             try {
@@ -82,7 +82,7 @@ public class RunnerPoolTest {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            System.out.println(runnerPool.getAvailablePoolSize());
+           // System.out.println(runnerPool.getAvailablePoolSize());
         }
     }
 

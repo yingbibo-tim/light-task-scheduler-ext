@@ -18,6 +18,8 @@ public class JobQueueReq extends PaginationReq {
 
     private String taskTrackerNodeGroup;
 
+    private String taskTrackerSubNodeGroup;
+
     private Date startGmtCreated;
     private Date endGmtCreated;
     private Date startGmtModified;
@@ -81,6 +83,14 @@ public class JobQueueReq extends PaginationReq {
 
     public void setTaskTrackerNodeGroup(String taskTrackerNodeGroup) {
         this.taskTrackerNodeGroup = taskTrackerNodeGroup;
+    }
+
+    public String getTaskTrackerSubNodeGroup() {
+        return taskTrackerSubNodeGroup;
+    }
+
+    public void setTaskTrackerSubNodeGroup(String taskTrackerSubNodeGroup) {
+        this.taskTrackerSubNodeGroup = taskTrackerSubNodeGroup;
     }
 
     public String getCronExpression() {

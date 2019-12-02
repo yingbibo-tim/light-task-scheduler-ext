@@ -74,7 +74,7 @@ public class MysqlExecutableJobQueue extends AbstractMysqlJobQueue implements Ex
     }
 
     @Override
-    public long countJob(String realTaskId, String taskTrackerNodeGroup) {
+    public long countJob(String realTaskId, String taskTrackerNodeGroup,String taskTrackerSubNodeGroup) {
         return (Long) new SelectSql(getSqlTemplate())
                 .select()
                 .columns("COUNT(1)")
@@ -82,17 +82,19 @@ public class MysqlExecutableJobQueue extends AbstractMysqlJobQueue implements Ex
                 .table(getTableName(taskTrackerNodeGroup))
                 .where("real_task_id = ?", realTaskId)
                 .and("task_tracker_node_group = ?", taskTrackerNodeGroup)
+                .and("task_tracker_sub_node_group = ?", taskTrackerSubNodeGroup)
                 .single();
     }
 
     @Override
-    public boolean removeBatch(String realTaskId, String taskTrackerNodeGroup) {
+    public boolean removeBatch(String realTaskId, String taskTrackerNodeGroup,String taskTrackerSubNodeGroup) {
         new DeleteSql(getSqlTemplate())
                 .delete()
                 .from()
                 .table(getTableName(taskTrackerNodeGroup))
                 .where("real_task_id = ?", realTaskId)
                 .and("task_tracker_node_group = ?", taskTrackerNodeGroup)
+                .and("task_tracker_sub_node_group = ?", taskTrackerSubNodeGroup)
                 .doDelete();
         return true;
     }
@@ -123,7 +125,7 @@ public class MysqlExecutableJobQueue extends AbstractMysqlJobQueue implements Ex
     }
 
     @Override
-    public JobPo getJob(String taskTrackerNodeGroup, String taskId) {
+    public JobPo getJob(String taskTrackerNodeGroup,String taskTrackerSubNodeGroup, String taskId) {
         return new SelectSql(getSqlTemplate())
                 .select()
                 .all()
@@ -131,6 +133,7 @@ public class MysqlExecutableJobQueue extends AbstractMysqlJobQueue implements Ex
                 .table(getTableName(taskTrackerNodeGroup))
                 .where("task_id = ?", taskId)
                 .and("task_tracker_node_group = ?", taskTrackerNodeGroup)
+                .and("task_tracker_sub_node_group = ?",taskTrackerSubNodeGroup)
                 .single(RshHolder.JOB_PO_RSH);
     }
 }

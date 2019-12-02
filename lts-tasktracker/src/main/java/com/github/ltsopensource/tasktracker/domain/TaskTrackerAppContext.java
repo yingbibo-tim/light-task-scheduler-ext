@@ -3,9 +3,11 @@ package com.github.ltsopensource.tasktracker.domain;
 import com.github.ltsopensource.core.AppContext;
 import com.github.ltsopensource.core.constant.Level;
 import com.github.ltsopensource.core.remoting.RemotingClientDelegate;
+import com.github.ltsopensource.tasktracker.expcetion.NoAvailableJobRunnerException;
 import com.github.ltsopensource.tasktracker.monitor.StopWorkingMonitor;
 import com.github.ltsopensource.tasktracker.runner.RunnerFactory;
 import com.github.ltsopensource.tasktracker.runner.RunnerPool;
+import com.github.ltsopensource.tasktracker.runner.RunnerPoolFactory;
 import com.github.ltsopensource.tasktracker.support.JobPullMachine;
 
 /**
@@ -15,7 +17,11 @@ public class TaskTrackerAppContext extends AppContext {
 
     private RemotingClientDelegate remotingClient;
     // runner 线程池
-    private RunnerPool runnerPool;
+   // private RunnerPool runnerPool;
+
+
+    private RunnerPoolFactory runnerPoolFactory;
+
     //
     private RunnerFactory runnerFactory;
     // Pull Job Machine
@@ -39,13 +45,26 @@ public class TaskTrackerAppContext extends AppContext {
         this.stopWorkingMonitor = stopWorkingMonitor;
     }
 
-    public RunnerPool getRunnerPool() {
-        return runnerPool;
+    public RunnerPoolFactory getRunnerPoolFactory() {
+        return runnerPoolFactory;
     }
 
-    public void setRunnerPool(RunnerPool runnerPool) {
-        this.runnerPool = runnerPool;
+    public void setRunnerPoolFactory(RunnerPoolFactory runnerPoolFactory) {
+        this.runnerPoolFactory = runnerPoolFactory;
     }
+
+    public RunnerPool getRunnerPool(String subGroupNodeName) throws NoAvailableJobRunnerException {
+    	return this.runnerPoolFactory.getRunnerPool(subGroupNodeName);
+    }
+
+    //
+//    public RunnerPool getRunnerPool() {
+//        return runnerPool;
+//    }
+//
+//    public void setRunnerPool(RunnerPool runnerPool) {
+//        this.runnerPool = runnerPool;
+//    }
 
     public Level getBizLogLevel() {
         return bizLogLevel;
