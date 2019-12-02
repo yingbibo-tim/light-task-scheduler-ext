@@ -13,7 +13,7 @@
     <groupId>com.github.ltsopensource</groupId>
     <artifactId>lts-parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.7.2-SNAPSHOT</version>
+    <version>2.0.0-suojifix</version>
     <url>https://github.com/ltsopensource/light-task-scheduler.git</url>
     <modules>
         <module>lts-core</module>
@@ -59,6 +59,7 @@
         <javassist.version>3.20.0-GA</javassist.version>
         <quartz.version>2.2.2</quartz.version>
         <logback.version>1.2.1</logback.version>
+        <guava.version>25.0-jre</guava.version>
     </properties>
 
     <dependencyManagement>
@@ -260,6 +261,11 @@
                 <artifactId>logback-classic</artifactId>
                 <version>${logback.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <profiles>
@@ -273,8 +279,8 @@
                     <plugin>
                         <artifactId>maven-compiler-plugin</artifactId>
                         <configuration>
-                            <source>1.6</source>
-                            <target>1.6</target>
+                            <source>1.8</source>
+                            <target>1.8</target>
                             <encoding>UTF-8</encoding>
                         </configuration>
                     </plugin>
