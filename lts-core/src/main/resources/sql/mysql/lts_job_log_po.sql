@@ -29,6 +29,6 @@ CREATE TABLE IF NOT EXISTS `lts_job_log_po` (
   `repeat_interval` bigint(20) DEFAULT '0' COMMENT '重复间隔',
   PRIMARY KEY (`id`),
   KEY `log_time` (`log_time`),
-  KEY `idx_taskTd_taskTrackerNodeGroup_trackerSubNodeGroup` (`task_id`,`task_tracker_node_group`, `task_tracker_node_group`),
-  KEY `idx_realTaskId_taskTrackerNodeGroup_trackerSubNodeGroup` (`real_task_id`, `task_tracker_node_group`, `task_tracker_node_group`)
+  KEY `idx_taskTd_taskTrackerNodeGroup_trackerSubNodeGroup` (`task_id`,`task_tracker_node_group`, `task_tracker_sub_node_group`),
+  KEY `idx_realTaskId_taskTrackerNodeGroup_trackerSubNodeGroup` (`real_task_id`, `task_tracker_node_group`, `task_tracker_sub_node_group`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='任务日志';
