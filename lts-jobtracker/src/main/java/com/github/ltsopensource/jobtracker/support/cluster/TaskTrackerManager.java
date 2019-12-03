@@ -56,18 +56,19 @@ public class TaskTrackerManager {
             String subGroup = subGroups[i];
             int sunThreadNum = Integer.parseInt(subThreads[i]);
             Set<TaskTrackerNode> taskTrackerNodes = NODE_TABLE.get(node.getGroup(),subGroup);
-            if (taskTrackerNodes == null) {
+            if (taskTrackerNodes == null ) {
                 taskTrackerNodes = new ConcurrentHashSet<TaskTrackerNode>();
                 //是为了保证 group subGroup 存在唯一
-                Set<TaskTrackerNode> oldSet = NODE_TABLE.row(node.getGroup()).put(subGroup,taskTrackerNodes);
+                Set<TaskTrackerNode> oldSet = NODE_TABLE.row(node.getGroup()).putIfAbsent(subGroup,taskTrackerNodes);
                 if(oldSet!=null){
                     taskTrackerNodes = oldSet;
                 }
-                TaskTrackerNode taskTrackerNode = new TaskTrackerNode(node.getGroup(),subGroup,
-                        sunThreadNum, node.getIdentity(), channel);
-                LOGGER.info("Add TaskTracker node:{}", taskTrackerNode);
-                taskTrackerNodes.add(taskTrackerNode);
             }
+            TaskTrackerNode taskTrackerNode = new TaskTrackerNode(node.getGroup(),subGroup,
+                    sunThreadNum, node.getIdentity(), channel);
+            LOGGER.info("Add TaskTracker node:{}", taskTrackerNode);
+            taskTrackerNodes.add(taskTrackerNode);
+
 
         }
         // create executable queue
