@@ -30,19 +30,20 @@ public class NodeFactory {
         node.setIp(config.getIp());
         node.setHostName(NetUtils.getLocalHostName());
         node.setGroup(config.getNodeGroup());
-        node.setThreads(config.getWorkThreads());
         node.setPort(config.getListenPort());
         node.setIdentity(config.getIdentity());
         node.setClusterName(config.getClusterName());
         Map<String,Integer> subNodeNameWithThreadNumMap = config.getSubNodeGroupMap();
-        List<String> subNodeNameList = new ArrayList<String>();
-        List<String> subNodeThreadNumList = new ArrayList<String>();
-        for(String subNodeName:subNodeNameWithThreadNumMap.keySet()){
-            subNodeNameList.add(subNodeName);
-            subNodeThreadNumList.add(String.valueOf(subNodeNameWithThreadNumMap.get(subNodeName)));
+        if(subNodeNameWithThreadNumMap!=null&&subNodeNameWithThreadNumMap.size()>0) {
+            List<String> subNodeNameList = new ArrayList<String>();
+            List<String> subNodeThreadNumList = new ArrayList<String>();
+            for (String subNodeName : subNodeNameWithThreadNumMap.keySet()) {
+                subNodeNameList.add(subNodeName);
+                subNodeThreadNumList.add(String.valueOf(subNodeNameWithThreadNumMap.get(subNodeName)));
+            }
+            node.setSubGroups(String.join(",", subNodeNameList));
+            node.setSubThreads(String.join(",", subNodeThreadNumList));
         }
-        node.setSubGroups(String.join(",",subNodeNameList));
-        node.setSubThreads(String.join(",",subNodeThreadNumList));
 
     }
 }
