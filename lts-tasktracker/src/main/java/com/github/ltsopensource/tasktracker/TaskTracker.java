@@ -66,9 +66,6 @@ public class TaskTracker extends AbstractClientNode<TaskTrackerNode, TaskTracker
         appContext.setJobRunnerClass(clazz);
     }
 
-    public void setWorkThreads(int workThreads) {
-        config.setWorkThreads(workThreads);
-    }
 
     /**
      * 设置业务日志记录级别
@@ -90,7 +87,7 @@ public class TaskTracker extends AbstractClientNode<TaskTrackerNode, TaskTracker
      * TaskTaracker设置副分类
      * @param subNodeGroup
      */
-    public void setSunNodeGroup(Map<String,Integer> subNodeGroup){
+    public void setSubNodeGroup(Map<String,Integer> subNodeGroup){
         config.setSubNodeGroupMap(subNodeGroup);
     }
 

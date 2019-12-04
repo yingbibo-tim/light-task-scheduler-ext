@@ -24,7 +24,6 @@ public class Node {
     private String subGroups;
     private Long createTime;
     // 线程个数
-    private Integer threads;
     private String subThreads;
     // 唯一标识
     private String identity;
@@ -116,14 +115,6 @@ public class Node {
 
     public void setCreateTime(Long createTime) {
         this.createTime = createTime;
-    }
-
-    public Integer getThreads() {
-        return threads;
-    }
-
-    public void setThreads(Integer threads) {
-        this.threads = threads;
     }
 
     public String getSubThreads() {

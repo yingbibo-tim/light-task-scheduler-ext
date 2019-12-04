@@ -43,13 +43,13 @@ public class RunnerPool {
 
         //TODO 需要修改成对应的subGroupNode 的线程数监控
         // 向事件中心注册事件, 改变工作线程大小
-        appContext.getEventCenter().subscribe(
-                new EventSubscriber(appContext.getConfig().getIdentity(), new Observer() {
-                    @Override
-                    public void onObserved(EventInfo eventInfo) {
-                        setWorkThread(appContext.getConfig().getWorkThreads());
-                    }
-                }), EcTopic.WORK_THREAD_CHANGE);
+//        appContext.getEventCenter().subscribe(
+//                new EventSubscriber(appContext.getConfig().getIdentity(), new Observer() {
+//                    @Override
+//                    public void onObserved(EventInfo eventInfo) {
+//                        setWorkThread(appContext.getConfig().getWorkThreads());
+//                    }
+//                }), EcTopic.WORK_THREAD_CHANGE);
     }
 
     /**

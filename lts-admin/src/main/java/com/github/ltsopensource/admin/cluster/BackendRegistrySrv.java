@@ -66,7 +66,6 @@ public class BackendRegistrySrv {
             log.setIdentity(node.getIdentity());
             log.setIp(node.getIp());
             log.setPort(node.getPort());
-            log.setThreads(node.getThreads());
             log.setNodeType(node.getNodeType());
             log.setHttpCmdPort(node.getHttpCmdPort());
 

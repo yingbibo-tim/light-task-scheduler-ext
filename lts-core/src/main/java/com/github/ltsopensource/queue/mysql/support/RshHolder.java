@@ -63,6 +63,7 @@ public class RshHolder {
         jobPo.setGmtModified(rs.getLong("gmt_modified"));
         jobPo.setSubmitNodeGroup(rs.getString("submit_node_group"));
         jobPo.setTaskTrackerNodeGroup(rs.getString("task_tracker_node_group"));
+        jobPo.setTaskTrackerSubNodeGroup(rs.getString("task_tracker_sub_node_group"));
         jobPo.setExtParams(JSON.parse(rs.getString("ext_params"), new TypeReference<HashMap<String, String>>() {
         }));
         String jobType = rs.getString("job_type");
@@ -134,6 +135,7 @@ public class RshHolder {
                 jobLogPo.setPriority(rs.getInt("priority"));
                 jobLogPo.setSubmitNodeGroup(rs.getString("submit_node_group"));
                 jobLogPo.setTaskTrackerNodeGroup(rs.getString("task_tracker_node_group"));
+                jobLogPo.setTaskTrackerSubNodeGroup(rs.getString("task_tracker_sub_node_group"));
                 jobLogPo.setExtParams(JSON.parse(rs.getString("ext_params"), new TypeReference<Map<String, String>>() {
                 }));
                 jobLogPo.setInternalExtParams(JSON.parse(rs.getString("internal_ext_params"), new TypeReference<HashMap<String, String>>() {

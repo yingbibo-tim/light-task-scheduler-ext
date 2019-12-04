@@ -51,7 +51,6 @@ public class NodeMemCacheAccess extends MemoryAccess {
                                 "port",
                                 "node_group",
                                 "create_time",
-                                "threads",
                                 "host_name",
                                 "http_cmd_port"
                         )
@@ -63,7 +62,6 @@ public class NodeMemCacheAccess extends MemoryAccess {
                                 node.getPort(),
                                 node.getGroup(),
                                 node.getCreateTime(),
-                                node.getThreads(),
                                 node.getHostName(),
                                 node.getHttpCmdPort())
                         .doInsert();

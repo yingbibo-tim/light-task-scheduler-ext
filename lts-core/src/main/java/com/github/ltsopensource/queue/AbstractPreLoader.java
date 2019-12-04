@@ -153,7 +153,7 @@ public abstract class AbstractPreLoader implements PreLoader {
                 }
             }
         }
-        LOAD_SIGNAL.remove(loadTaskTrackerNodeGroup.concat(taskTrackerSubNodeGroup));
+        LOAD_SIGNAL.remove( loadTaskTrackerNodeGroup.concat(LOAD_SPLIT).concat(taskTrackerSubNodeGroup));
     }
 
     @Override

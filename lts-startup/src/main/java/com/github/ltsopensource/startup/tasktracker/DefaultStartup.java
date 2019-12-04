@@ -18,7 +18,7 @@ public class DefaultStartup {
         taskTracker.setRegistryAddress(cfg.getRegistryAddress());
         taskTracker.setNodeGroup(cfg.getNodeGroup());
         taskTracker.setClusterName(cfg.getClusterName());
-        taskTracker.setWorkThreads(cfg.getWorkThreads());
+       // taskTracker.setWorkThreads(cfg.getWorkThreads());
         taskTracker.setDataPath(cfg.getDataPath());
         // 业务日志级别
         if (cfg.getBizLoggerLevel() == null) {

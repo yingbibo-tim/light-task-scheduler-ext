@@ -31,7 +31,6 @@ public class RunnerPoolTest {
         LTSConfig.setEnvironment(Environment.UNIT_TEST);
 
         Config config = new Config();
-        config.setWorkThreads(10);
         config.setIdentity("fjdaslfjlasj");
 
         TaskTrackerAppContext appContext = new TaskTrackerAppContext();

@@ -25,8 +25,6 @@ public class Config implements Serializable {
 
     // 唯一标识
     private String identity;
-    // 工作线程, 目前只对 TaskTracker 有效
-    private int workThreads;
     // 节点类型
     private NodeType nodeType;
     // 注册中心 地址
@@ -82,14 +80,6 @@ public class Config implements Serializable {
 
     public void setIdentity(String identity) {
         this.identity = identity;
-    }
-
-    public int getWorkThreads() {
-        return workThreads;
-    }
-
-    public void setWorkThreads(int workThreads) {
-        this.workThreads = workThreads;
     }
 
     public NodeType getNodeType() {

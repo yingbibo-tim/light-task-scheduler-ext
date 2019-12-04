@@ -48,9 +48,6 @@ public class TaskTrackerBuilder extends AbstractNodeBuilder<TaskTracker, TaskTra
         if (properties.getBizLoggerLevel() != null) {
             taskTracker.setBizLoggerLevel(properties.getBizLoggerLevel());
         }
-        if (properties.getWorkThreads() != 0) {
-            taskTracker.setWorkThreads(properties.getWorkThreads());
-        }
         if (properties.getJobRunnerClass() != null) {
             taskTracker.setJobRunnerClass((Class<? extends JobRunner>) properties.getJobRunnerClass());
         }

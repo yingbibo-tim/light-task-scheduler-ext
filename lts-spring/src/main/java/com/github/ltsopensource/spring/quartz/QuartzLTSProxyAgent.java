@@ -75,7 +75,6 @@ class QuartzLTSProxyAgent {
     private void startTaskTracker() {
 
         TaskTracker taskTracker = TaskTrackerBuilder.buildByProperties(quartzLTSConfig.getTaskTrackerProperties());
-        taskTracker.setWorkThreads(quartzJobContexts.size());
         taskTracker.setJobRunnerClass(QuartzJobRunnerDispatcher.class);
 
         final QuartzJobRunnerDispatcher jobRunnerDispatcher = new QuartzJobRunnerDispatcher(quartzJobContexts);

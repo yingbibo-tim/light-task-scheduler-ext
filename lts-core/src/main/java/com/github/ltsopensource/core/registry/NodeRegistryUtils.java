@@ -59,8 +59,6 @@ public class NodeRegistryUtils {
                     node.setClusterName(value);
                 } else if ("group".equals(key)) {
                     node.setGroup(value);
-                } else if ("threads".equals(key)) {
-                    node.setThreads(Integer.valueOf(value));
                 } else if ("identity".equals(key)) {
                     node.setIdentity(value);
                 } else if ("createTime".equals(key)) {
@@ -105,11 +103,6 @@ public class NodeRegistryUtils {
                 .append(node.getGroup())
                 .append("&clusterName=")
                 .append(node.getClusterName());
-        if (node.getThreads() != 0) {
-            path.append("&threads=")
-                    .append(node.getThreads());
-        }
-
         path.append("&identity=")
                 .append(node.getIdentity())
                 .append("&createTime=")

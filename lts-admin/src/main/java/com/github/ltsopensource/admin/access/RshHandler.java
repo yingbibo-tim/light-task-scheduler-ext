@@ -48,7 +48,6 @@ public class RshHandler {
         node.setPort(rs.getInt("port"));
         node.setGroup(rs.getString("node_group"));
         node.setCreateTime(rs.getLong("create_time"));
-        node.setThreads(rs.getInt("threads"));
         node.setAvailable(rs.getInt("available") == 1);
         node.setHostName(rs.getString("host_name"));
         node.setHttpCmdPort(rs.getInt("http_cmd_port"));
