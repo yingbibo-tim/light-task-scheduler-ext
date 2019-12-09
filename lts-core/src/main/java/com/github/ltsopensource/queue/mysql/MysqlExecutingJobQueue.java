@@ -28,6 +28,11 @@ public class MysqlExecutingJobQueue extends AbstractMysqlJobQueue implements Exe
     }
 
     @Override
+    protected String getTableName(String taskTrackerNodeGroup) {
+        return getTableName();
+    }
+
+    @Override
     public boolean add(JobPo jobPo) {
         return super.add(getTableName(), jobPo);
     }

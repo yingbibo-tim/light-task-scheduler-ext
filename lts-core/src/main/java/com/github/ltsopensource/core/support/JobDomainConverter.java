@@ -53,9 +53,11 @@ public class JobDomainConverter {
 
         // 设置JobType
         if (job.isCron()) {
+            job.setServerFrom(JobType.CRON.name());
             jobPo.setJobType(JobType.CRON);
             jobPo.setCronExpression(job.getCronExpression());
         } else if (job.isRepeatable()) {
+            job.setServerFrom(JobType.REPEAT.name());
             jobPo.setCronExpression(null);
             jobPo.setRepeatInterval(job.getRepeatInterval());
             jobPo.setJobType(JobType.REPEAT);

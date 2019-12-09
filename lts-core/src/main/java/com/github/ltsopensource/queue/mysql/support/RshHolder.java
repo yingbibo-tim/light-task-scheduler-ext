@@ -9,9 +9,7 @@ import com.github.ltsopensource.core.domain.JobRunResult;
 import com.github.ltsopensource.core.domain.JobType;
 import com.github.ltsopensource.core.json.JSON;
 import com.github.ltsopensource.core.json.TypeReference;
-import com.github.ltsopensource.queue.domain.JobFeedbackPo;
-import com.github.ltsopensource.queue.domain.JobPo;
-import com.github.ltsopensource.queue.domain.NodeGroupPo;
+import com.github.ltsopensource.queue.domain.*;
 import com.github.ltsopensource.store.jdbc.dbutils.ResultSetHandler;
 
 import java.sql.ResultSet;
@@ -46,6 +44,70 @@ public class RshHolder {
             return jobPos;
         }
     };
+
+    public static final ResultSetHandler<JobFinishPo> JOB_FINISH_PO_RSH = new ResultSetHandler<JobFinishPo>() {
+        @Override
+        public JobFinishPo handle(ResultSet rs) throws SQLException {
+            if(!rs.next()){
+                return null;
+            }
+            JobFinishPo jobFinishPo = new JobFinishPo();
+            jobFinishPo.setId(rs.getLong("id"));
+            jobFinishPo.setTaskId(rs.getString("task_id"));
+            jobFinishPo.setTaskTrackerNodeGroup(rs.getString("task_tracker_node_group"));
+            jobFinishPo.setTaskTrackerSubNodeGroup(rs.getString("task_tracker_sub_node_group"));
+            jobFinishPo.setGmtModified(rs.getLong("gmt_modified"));
+            return jobFinishPo;
+        }
+    };
+
+    public static final ResultSetHandler<JobStatPo> JOB_STAT_PO_RSH = new ResultSetHandler<JobStatPo>() {
+        @Override
+        public JobStatPo handle(ResultSet rs) throws SQLException {
+            if(!rs.next()){
+                return null;
+            }
+            JobStatPo jobStatPo = new JobStatPo();
+            jobStatPo.setId(rs.getLong("id"));
+            jobStatPo.setTaskId(rs.getString("task_id"));
+            jobStatPo.setTaskTrackerNodeGroup(rs.getString("task_tracker_node_group"));
+            jobStatPo.setTaskTrackerSubNodeGroup(rs.getString("task_tracker_sub_node_group"));
+            if(rs.getObject("day_range")!=null) {
+                jobStatPo.setDayRange(rs.getLong("day_range"));
+            }
+            jobStatPo.setServerFrom(rs.getString("server_from"));
+            if(rs.getObject("gmt_modified")!=null) {
+                jobStatPo.setGmtModified(rs.getLong("gmt_modified"));
+            }
+            jobStatPo.setJobStatType(JobStatType.get( rs.getString("job_stat_type")));
+            return jobStatPo;
+        }
+    };
+
+    public static final ResultSetHandler<List<JobStatPo>> JOB_STAT_PO_LIST_RSH = new ResultSetHandler<List<JobStatPo>>() {
+        @Override
+        public List<JobStatPo> handle(ResultSet rs) throws SQLException {
+            List<JobStatPo> jobPos = new ArrayList<JobStatPo>();
+            while (rs.next()) {
+                JobStatPo jobStatPo = new JobStatPo();
+                jobStatPo.setId(rs.getLong("id"));
+                jobStatPo.setTaskId(rs.getString("task_id"));
+                jobStatPo.setTaskTrackerNodeGroup(rs.getString("task_tracker_node_group"));
+                jobStatPo.setTaskTrackerSubNodeGroup(rs.getString("task_tracker_sub_node_group"));
+                if(rs.getObject("day_range")!=null) {
+                    jobStatPo.setDayRange(rs.getLong("day_range"));
+                }
+                jobStatPo.setServerFrom(rs.getString("server_from"));
+                if(rs.getObject("gmt_modified")!=null) {
+                    jobStatPo.setGmtModified(rs.getLong("gmt_modified"));
+                }
+                jobStatPo.setJobStatType(JobStatType.get( rs.getString("job_stat_type")));
+                jobPos.add(jobStatPo);
+            }
+            return jobPos;
+        }
+    };
+
 
     private static JobPo getJobPo(ResultSet rs) throws SQLException {
         JobPo jobPo = new JobPo();
@@ -154,6 +216,9 @@ public class RshHolder {
             return result;
         }
     };
+
+
+
 }
 
 

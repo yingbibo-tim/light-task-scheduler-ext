@@ -46,7 +46,8 @@ public class MysqlExecutableJobQueue extends AbstractMysqlJobQueue implements Ex
                 .doDrop();
     }
 
-    private String getTableName(String taskTrackerNodeGroup) {
+    @Override
+    public String getTableName(String taskTrackerNodeGroup) {
         return JobQueueUtils.getExecutableQueueName(taskTrackerNodeGroup);
     }
 

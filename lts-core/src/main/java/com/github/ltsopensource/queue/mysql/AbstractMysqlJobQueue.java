@@ -112,6 +112,7 @@ public abstract class  AbstractMysqlJobQueue extends JdbcAbstractAccess implemen
     }
 
     protected abstract String getTableName(JobQueueReq request);
+    protected abstract String getTableName(String taskTrackerNodeGroup);
 
     @Override
     public boolean selectiveUpdateByJobId(JobQueueReq request) {
@@ -122,6 +123,26 @@ public abstract class  AbstractMysqlJobQueue extends JdbcAbstractAccess implemen
         return sql.where("job_id=?", request.getJobId())
                 .doUpdate() == 1;
     }
+
+    public final JobPo getJob(String jobId,String taskTrackerNodeGroup) {
+        return new SelectSql(getSqlTemplate())
+                .select()
+                .all()
+                .from()
+                .table(getTableName(taskTrackerNodeGroup))
+                .where("job_id = ?", jobId)
+                .single(RshHolder.JOB_PO_RSH);
+    }
+
+    @Override
+    public boolean selectiveUpdateByJobIdAndLastGmtModified(JobPo jobPo,Long oldGmtModified){
+        Assert.hasLength(jobPo.getJobId(), "Only allow update by jobId");
+        UpdateSql sql = buildUpdateSqlPrefix(jobPo);
+        return sql.where("job_id=?", jobPo.getJobId())
+                .and("gmt_modified = ?", oldGmtModified)
+                .doUpdate() == 1;
+    }
+
 
     @Override
     public boolean selectiveUpdateByTaskId(JobQueueReq request) {
@@ -151,6 +172,25 @@ public abstract class  AbstractMysqlJobQueue extends JdbcAbstractAccess implemen
                 .setOnNotNull("task_tracker_sub_node_group", request.getTaskTrackerSubNodeGroup())
                 .setOnNotNull("repeat_count", request.getRepeatCount())
                 .setOnNotNull("repeat_interval", request.getRepeatInterval())
+                .setOnNotNull("gmt_modified", SystemClock.now());
+    }
+
+    private UpdateSql buildUpdateSqlPrefix(JobPo jobPo) {
+        return new UpdateSql(getSqlTemplate())
+                .update()
+                .table(getTableName(jobPo.getTaskTrackerNodeGroup()))
+                .setOnNotNull("cron_expression", jobPo.getCronExpression())
+                .setOnNotNull("need_feedback", jobPo.isNeedFeedback())
+                .setOnNotNull("ext_params", JSON.toJSONString(jobPo.getExtParams()))
+                .setOnNotNull("trigger_time", jobPo.getTriggerTime())
+                .setOnNotNull("priority", jobPo.getPriority())
+                .setOnNotNull("max_retry_times", jobPo.getMaxRetryTimes())
+                .setOnNotNull("rely_on_prev_cycle", jobPo.getRelyOnPrevCycle() == null ? true : jobPo.getRelyOnPrevCycle())
+                .setOnNotNull("submit_node_group", jobPo.getSubmitNodeGroup())
+                .setOnNotNull("task_tracker_node_group", jobPo.getTaskTrackerNodeGroup())
+                .setOnNotNull("task_tracker_sub_node_group", jobPo.getTaskTrackerSubNodeGroup())
+                .setOnNotNull("repeat_count", jobPo.getRepeatCount())
+                .setOnNotNull("repeat_interval", jobPo.getRepeatInterval())
                 .setOnNotNull("gmt_modified", SystemClock.now());
     }
 

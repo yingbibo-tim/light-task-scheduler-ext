@@ -21,6 +21,13 @@ public class NonRelyJobUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NonRelyJobUtils.class);
 
+
+    public static void main(String[] args) {
+        long endTime = DateUtils.addMinute(new Date(), 10).getTime();
+        System.out.println(endTime);
+        System.out.println(CronExpressionUtils.getNextTriggerTime("0 0/10 * * * ?",new Date()));
+    }
+
     /**
      * 生成一个小时的任务
      */

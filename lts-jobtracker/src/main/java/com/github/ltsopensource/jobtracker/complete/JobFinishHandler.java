@@ -5,8 +5,7 @@ import com.github.ltsopensource.biz.logger.domain.LogType;
 import com.github.ltsopensource.core.commons.utils.CollectionUtils;
 import com.github.ltsopensource.core.constant.Constants;
 import com.github.ltsopensource.core.constant.Level;
-import com.github.ltsopensource.core.domain.JobMeta;
-import com.github.ltsopensource.core.domain.JobRunResult;
+import com.github.ltsopensource.core.domain.*;
 import com.github.ltsopensource.core.json.JSON;
 import com.github.ltsopensource.core.logger.Logger;
 import com.github.ltsopensource.core.logger.LoggerFactory;
@@ -15,11 +14,17 @@ import com.github.ltsopensource.core.support.JobDomainConverter;
 import com.github.ltsopensource.core.support.JobUtils;
 import com.github.ltsopensource.core.support.SystemClock;
 import com.github.ltsopensource.jobtracker.domain.JobTrackerAppContext;
+import com.github.ltsopensource.queue.domain.JobFinishPo;
 import com.github.ltsopensource.queue.domain.JobPo;
+import com.github.ltsopensource.queue.domain.JobStatPo;
+import com.github.ltsopensource.queue.domain.JobStatType;
+import com.github.ltsopensource.queue.support.JobComposeUtils;
+import com.github.ltsopensource.queue.support.JobStatUtils;
 import com.github.ltsopensource.store.jdbc.exception.DupEntryException;
 
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Robert HG (254963746@qq.com) on 11/11/15.
@@ -64,6 +69,32 @@ public class JobFinishHandler {
 
             // 从正在执行的队列中移除
             appContext.getExecutingJobQueue().remove(jobMeta.getJobId());
+            //添加任务状态
+            JobStatType jobStatType = JobStatType.FINISH;
+            if(!Action.EXECUTE_SUCCESS.equals(result.getAction())){
+                jobStatType = JobStatType.FIAL;
+            }
+            Job job = result.getJobMeta().getJob();
+            if(JobStatType.FINISH.equals(jobStatType)){
+                JobFinishPo jobFinishPo = appContext.getFinishJobQueue().getJob(job.getTaskTrackerNodeGroup(),job.getTaskTrackerSubNodeGroup(),job.getTaskId());
+                if(jobFinishPo!=null){
+                    appContext.getFinishJobQueue().update(job.getTaskTrackerNodeGroup(),jobFinishPo.getId());
+                }else{
+                    jobFinishPo = new JobFinishPo();
+                    jobFinishPo.setTaskId(job.getTaskId());
+                    jobFinishPo.setTaskTrackerNodeGroup(job.getTaskTrackerNodeGroup());
+                    jobFinishPo.setTaskTrackerSubNodeGroup(job.getTaskTrackerSubNodeGroup());
+                    jobFinishPo.setTaskId(job.getTaskId());
+                    jobFinishPo.setGmtModified(SystemClock.now());
+                    appContext.getFinishJobQueue().add(jobFinishPo);
+                }
+                JobStatUtils.changeJobStat(appContext.getJobStatQueue(),appContext.getFinishJobQueue(),job.getTaskId(),job.getTaskTrackerNodeGroup(),job.getTaskTrackerSubNodeGroup(),JobStatType.FINISH);
+
+            }else{
+                JobStatUtils.changeJobStat(appContext.getJobStatQueue(),appContext.getFinishJobQueue(),job.getTaskId(),job.getTaskTrackerNodeGroup(),job.getTaskTrackerSubNodeGroup(),jobStatType);
+
+            }
+
         }
     }
 
@@ -88,15 +119,18 @@ public class JobFinishHandler {
             jobPo.setGmtModified(SystemClock.now());
             jobPo.setInternalExtParam(Constants.EXE_SEQ_ID, JobUtils.generateExeSeqId(jobPo));
             appContext.getExecutableJobQueue().add(jobPo);
+
         } catch (DupEntryException e) {
             LOGGER.warn("ExecutableJobQueue already exist:" + JSON.toJSONString(jobPo));
+            //更新信息 这里就不更新状态了 定时任务 或者 重复任务 最后状态鉴定不了,一旦完成了任务了,就把下次的任务放到等待队列里面去了
+            JobComposeUtils.composeExecutableJob(jobPo,appContext.getExecutableJobQueue());
         }
     }
 
     private void finishNoReplyPrevCronJob(JobMeta jobMeta) {
         JobPo jobPo = appContext.getCronJobQueue().getJob(jobMeta.getJob().getTaskTrackerNodeGroup(),jobMeta.getJob().getTaskTrackerSubNodeGroup(), jobMeta.getRealTaskId());
         if (jobPo == null) {
-            // 可能任务队列中改条记录被删除了
+            // 可能任务队列中该条记录被删除了
             return;
         }
         Date nextTriggerTime = CronExpressionUtils.getNextTriggerTime(jobPo.getCronExpression());
@@ -169,6 +203,8 @@ public class JobFinishHandler {
             appContext.getExecutableJobQueue().add(jobPo);
         } catch (DupEntryException e) {
             LOGGER.warn("ExecutableJobQueue already exist:" + JSON.toJSONString(jobPo));
+            JobComposeUtils.composeExecutableJob(jobPo,appContext.getExecutableJobQueue());
+
         }
     }
 

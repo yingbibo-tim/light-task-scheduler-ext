@@ -1,7 +1,10 @@
 package com.github.ltsopensource.queue.domain;
 
+import com.github.ltsopensource.core.commons.utils.StringUtils;
+import com.github.ltsopensource.core.constant.Constants;
 import com.github.ltsopensource.core.domain.JobType;
 import com.github.ltsopensource.core.json.JSON;
+import com.github.ltsopensource.core.support.JobUtils;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -323,6 +326,28 @@ public class JobPo implements Serializable {
     public void setRunning(Boolean running) {
         isRunning = running;
     }
+
+
+    public void compose(JobPo jobPo){
+
+        if(priority<=jobPo.getPriority()){
+            setPriority(jobPo.getPriority());
+        }
+        Map<String,String> oldParamsMap = getExtParams()==null?new HashMap<String,String>():getExtParams();
+        Map<String,String> paramsMap = jobPo.getExtParams()==null?new HashMap<String,String>():jobPo.getExtParams();
+        String webFrom = paramsMap.getOrDefault(Constants.WEB_FROM,"");
+        String oldWebFrom = paramsMap.getOrDefault(Constants.WEB_FROM,"");
+        if(!oldWebFrom.contains(webFrom)){
+            oldWebFrom = oldWebFrom.concat(",").concat(webFrom);
+        }
+        if(!StringUtils.isEmpty(oldWebFrom)){
+            oldParamsMap.put(Constants.WEB_FROM,oldWebFrom);
+        }
+        setJobId(jobPo.getJobId());
+
+
+    }
+
 
     @Override
     public String toString() {

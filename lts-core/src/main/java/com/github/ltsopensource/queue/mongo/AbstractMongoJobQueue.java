@@ -5,6 +5,7 @@ import com.github.ltsopensource.admin.response.PaginationRsp;
 import com.github.ltsopensource.core.cluster.Config;
 import com.github.ltsopensource.core.commons.utils.Assert;
 import com.github.ltsopensource.core.commons.utils.StringUtils;
+import com.github.ltsopensource.core.domain.Job;
 import com.github.ltsopensource.core.support.SystemClock;
 import com.github.ltsopensource.queue.JobQueue;
 import com.github.ltsopensource.queue.domain.JobPo;
@@ -75,6 +76,17 @@ public abstract class AbstractMongoJobQueue extends MongoRepository implements J
         return ur.getUpdatedCount() == 1;
     }
 
+    @Override
+    public boolean selectiveUpdateByJobIdAndLastGmtModified(JobPo jobPo, Long oldGmtModified) {
+        Assert.hasLength(jobPo.getJobId(), "Only allow update by jobId");
+        Query<JobPo> query = template.createQuery(getTargetTable(jobPo.getTaskTrackerNodeGroup()), JobPo.class);
+        query.field("jobId").equal(jobPo.getJobId())
+        .field("gmtModified").equal(oldGmtModified);
+        UpdateOperations<JobPo> operations = buildUpdateOperations(jobPo);
+        UpdateResults ur = template.update(query, operations);
+        return ur.getUpdatedCount() == 1;
+    }
+
     private UpdateOperations<JobPo> buildUpdateOperations(JobQueueReq request) {
         UpdateOperations<JobPo> operations = template.createUpdateOperations(JobPo.class);
         addUpdateField(operations, "cronExpression", request.getCronExpression());
@@ -89,6 +101,24 @@ public abstract class AbstractMongoJobQueue extends MongoRepository implements J
         addUpdateField(operations, "taskTrackerSubNodeGroup", request.getTaskTrackerSubNodeGroup());
         addUpdateField(operations, "repeatCount", request.getRepeatCount());
         addUpdateField(operations, "repeatInterval", request.getRepeatInterval());
+        addUpdateField(operations, "gmtModified", SystemClock.now());
+        return operations;
+    }
+
+    private UpdateOperations<JobPo> buildUpdateOperations(JobPo jobPo) {
+        UpdateOperations<JobPo> operations = template.createUpdateOperations(JobPo.class);
+        addUpdateField(operations, "cronExpression", jobPo.getCronExpression());
+        addUpdateField(operations, "needFeedback", jobPo.isNeedFeedback());
+        addUpdateField(operations, "extParams", jobPo.getExtParams());
+        addUpdateField(operations, "triggerTime", jobPo.getTriggerTime());
+        addUpdateField(operations, "priority", jobPo.getPriority());
+        addUpdateField(operations, "maxRetryTimes", jobPo.getMaxRetryTimes());
+        addUpdateField(operations, "relyOnPrevCycle", jobPo.getRelyOnPrevCycle() == null ? true : jobPo.getRelyOnPrevCycle());
+        addUpdateField(operations, "submitNodeGroup", jobPo.getSubmitNodeGroup());
+        addUpdateField(operations, "taskTrackerNodeGroup", jobPo.getTaskTrackerNodeGroup());
+        addUpdateField(operations, "taskTrackerSubNodeGroup", jobPo.getTaskTrackerSubNodeGroup());
+        addUpdateField(operations, "repeatCount", jobPo.getRepeatCount());
+        addUpdateField(operations, "repeatInterval", jobPo.getRepeatInterval());
         addUpdateField(operations, "gmtModified", SystemClock.now());
         return operations;
     }

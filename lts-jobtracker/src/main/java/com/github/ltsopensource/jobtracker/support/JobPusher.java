@@ -24,6 +24,10 @@ import com.github.ltsopensource.jobtracker.monitor.JobTrackerMStatReporter;
 import com.github.ltsopensource.jobtracker.sender.JobPushResult;
 import com.github.ltsopensource.jobtracker.sender.JobSender;
 import com.github.ltsopensource.queue.domain.JobPo;
+import com.github.ltsopensource.queue.domain.JobStatPo;
+import com.github.ltsopensource.queue.domain.JobStatType;
+import com.github.ltsopensource.queue.support.JobComposeUtils;
+import com.github.ltsopensource.queue.support.JobStatUtils;
 import com.github.ltsopensource.remoting.AsyncCallback;
 import com.github.ltsopensource.remoting.ResponseFuture;
 import com.github.ltsopensource.remoting.protocol.RemotingCommand;
@@ -32,6 +36,7 @@ import com.github.ltsopensource.store.jdbc.exception.DupEntryException;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/18/14.
@@ -258,10 +263,12 @@ public class JobPusher {
         } catch (DupEntryException e) {
             LOGGER.warn("ExecutableJobQueue already exist:" + JSON.toJSONString(jobPo));
             needResume = false;
+            JobComposeUtils.composeExecutableJob(jobPo,appContext.getExecutableJobQueue());
         }
         appContext.getExecutingJobQueue().remove(jobPo.getJobId());
         if (needResume) {
             appContext.getExecutableJobQueue().resume(jobPo);
+            JobStatUtils.changeJobStat(appContext.getJobStatQueue(),appContext.getFinishJobQueue(),jobPo.getTaskId(),jobPo.getTaskTrackerNodeGroup(),jobPo.getTaskTrackerSubNodeGroup(),JobStatType.WAIT);
         }
     }
 }

@@ -71,6 +71,13 @@ public class Job implements Serializable {
      */
     private boolean relyOnPrevCycle = true;
 
+
+    private String serverFrom;
+    /**
+     * 多少天内任务不提交
+     */
+    private Long jobDayRange;
+
     public Integer getPriority() {
         return priority;
     }
@@ -211,6 +218,22 @@ public class Job implements Serializable {
         this.relyOnPrevCycle = relyOnPrevCycle;
     }
 
+    public String getServerFrom() {
+        return serverFrom;
+    }
+
+    public void setServerFrom(String serverFrom) {
+        this.serverFrom = serverFrom;
+    }
+
+    public Long getJobDayRange() {
+        return jobDayRange;
+    }
+
+    public void setJobDayRange(Long jobDayRange) {
+        this.jobDayRange = jobDayRange;
+    }
+
     @Override
     public String toString() {
         return JSON.toJSONString(this);
@@ -236,6 +259,10 @@ public class Job implements Serializable {
 
         if (taskTrackerSubNodeGroup.length() > 64) {
             throw new JobSubmitException("taskSubTrackerNodeGroup length should not great than 64! job is " + toString());
+        }
+
+        if(jobDayRange!=null&&jobDayRange<=0){
+            throw new JobSubmitException("jobDayRange great than zero! job is " + toString());
         }
 
         if (StringUtils.isNotEmpty(cronExpression)) {

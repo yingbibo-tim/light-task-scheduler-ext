@@ -10,9 +10,13 @@ import com.github.ltsopensource.core.support.JobDomainConverter;
 import com.github.ltsopensource.core.support.SystemClock;
 import com.github.ltsopensource.jobtracker.domain.JobTrackerAppContext;
 import com.github.ltsopensource.queue.domain.JobPo;
+import com.github.ltsopensource.queue.domain.JobStatPo;
+import com.github.ltsopensource.queue.domain.JobStatType;
+import com.github.ltsopensource.queue.support.JobStatUtils;
 import com.github.ltsopensource.store.jdbc.exception.DupEntryException;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -31,6 +35,30 @@ public class JobSender {
     public SendResult send(String taskTrackerNodeGroup,String taskTrackerSubNodeGroup,String taskTrackerIdentity, int size, SendInvoker invoker) {
 
         List<JobPo> jobPos = fetchJob(taskTrackerNodeGroup,taskTrackerSubNodeGroup, taskTrackerIdentity, size);
+
+        List<JobStatPo> jobStatNeedUpdatePoList = new ArrayList<>();
+        Iterator<JobPo> it = jobPos.iterator();
+        while(it.hasNext()){
+            boolean needSubmit = false;
+            JobPo jobPo = it.next();
+            List<JobStatPo> jobStatPoList = appContext.getJobStatQueue().getJobs(jobPo.getTaskTrackerNodeGroup(),jobPo.getTaskTrackerSubNodeGroup(),jobPo.getTaskId());
+            if(jobStatPoList.size()>0) {
+                for (JobStatPo jobStatPo : jobStatPoList) {
+                    if(!JobStatUtils.checkJobNeedSubmit(appContext.getFinishJobQueue(),jobStatPo.getTaskId(),jobStatPo.getTaskTrackerNodeGroup(),jobPo.getTaskTrackerSubNodeGroup(),jobStatPo.getDayRange())){
+                        JobStatUtils.addOrUpdateJobStat(appContext.getJobStatQueue(),jobStatPo.getTaskId(),jobStatPo.getTaskTrackerNodeGroup(),jobStatPo.getTaskTrackerSubNodeGroup(),jobStatPo.getServerFrom(),jobStatPo.getDayRange(),JobStatType.FINISH);
+                    } else {
+                        jobStatNeedUpdatePoList.add(jobStatPo);
+                        needSubmit = true;
+                    }
+                }
+            }else{
+                needSubmit = true;
+            }
+            if(!needSubmit){
+                it.remove();
+            }
+        }
+
         if (jobPos.size() == 0) {
             return new SendResult(false, JobPushResult.NO_JOB);
         }
@@ -41,7 +69,6 @@ public class JobSender {
             List<JobLogPo> jobLogPos = new ArrayList<JobLogPo>(jobPos.size());
             for (JobPo jobPo : jobPos) {
                 // 记录日志
-                //TODO jobLogPo 增加task_tracker_sub_node_group
                 JobLogPo jobLogPo = JobDomainConverter.convertJobLog(jobPo);
                 jobLogPo.setSuccess(true);
                 jobLogPo.setLogType(LogType.SENT);
@@ -50,6 +77,9 @@ public class JobSender {
                 jobLogPos.add(jobLogPo);
             }
             appContext.getJobLogger().log(jobLogPos);
+            for(JobStatPo jobStatPo:jobStatNeedUpdatePoList){
+                //更新状态
+                JobStatUtils.changeJobStat(appContext.getJobStatQueue(),appContext.getFinishJobQueue(),jobStatPo.getTaskId(),jobStatPo.getTaskTrackerNodeGroup(),jobStatPo.getTaskTrackerSubNodeGroup(),JobStatType.RUNNING);            }
         }
         return sendResult;
     }
@@ -69,12 +99,14 @@ public class JobSender {
 
             // IMPORTANT: 这里要先切换队列
             try {
+                //添加到执行任务队列里面
                 appContext.getExecutingJobQueue().add(jobPo);
             } catch (DupEntryException e) {
                 LOGGER.warn("ExecutingJobQueue already exist:" + JSON.toJSONString(jobPo));
                 appContext.getExecutableJobQueue().resume(jobPo);
                 continue;
             }
+            //移除等待队列
             appContext.getExecutableJobQueue().remove(jobPo.getTaskTrackerNodeGroup(), jobPo.getJobId());
 
             jobPos.add(jobPo);

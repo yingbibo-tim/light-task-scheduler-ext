@@ -77,4 +77,7 @@ public interface Constants {
     String EXE_SEQ_ID = "__LTS_Seq_Id";
 
     int DEFAULT_JOB_TRACKER_PUSH_BATCH_SIZE = 10;
+
+    String WEB_FROM = "__LTS_Web_From";
+    String DAY_RANGE = "__LTS_DAY_RANGE";
 }

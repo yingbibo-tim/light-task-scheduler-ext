@@ -25,6 +25,11 @@ public class MysqlSuspendJobQueue extends AbstractMysqlJobQueue implements Suspe
     }
 
     @Override
+    protected String getTableName(String taskTrackerNodeGroup) {
+        return getTableName();
+    }
+
+    @Override
     public boolean add(JobPo jobPo) {
         return add(getTableName(), jobPo);
     }

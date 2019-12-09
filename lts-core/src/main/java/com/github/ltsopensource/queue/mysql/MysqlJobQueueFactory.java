@@ -35,6 +35,16 @@ public class MysqlJobQueueFactory implements JobQueueFactory {
     }
 
     @Override
+    public FinishJobQueue getFinishJobQueue(Config config) {
+        return new MysqlFinishJobQueue(config);
+    }
+
+    @Override
+    public JobStatQueue getJobStatQueue(Config config) {
+        return new MysqlJobStatQueue(config);
+    }
+
+    @Override
     public NodeGroupStore getNodeGroupStore(Config config) {
         return new MysqlNodeGroupStore(config);
     }

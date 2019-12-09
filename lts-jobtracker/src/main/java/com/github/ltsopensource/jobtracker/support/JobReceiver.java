@@ -18,11 +18,16 @@ import com.github.ltsopensource.core.support.JobUtils;
 import com.github.ltsopensource.core.support.SystemClock;
 import com.github.ltsopensource.jobtracker.domain.JobTrackerAppContext;
 import com.github.ltsopensource.jobtracker.monitor.JobTrackerMStatReporter;
+import com.github.ltsopensource.queue.domain.JobFinishPo;
 import com.github.ltsopensource.queue.domain.JobPo;
+import com.github.ltsopensource.queue.domain.JobStatType;
+import com.github.ltsopensource.queue.support.JobComposeUtils;
+import com.github.ltsopensource.queue.support.JobStatUtils;
 import com.github.ltsopensource.store.jdbc.exception.DupEntryException;
 
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/1/14.
@@ -93,7 +98,7 @@ public class JobReceiver {
             // 已经存在
             if (job.isReplaceOnExist()) {
                 Assert.notNull(jobPo);
-                success = replaceOnExist(job, jobPo);
+                success = composeJob(job, jobPo);
                 code = success ? BizLogCode.DUP_REPLACE : BizLogCode.DUP_FAILED;
             } else {
                 code = BizLogCode.DUP_IGNORE;
@@ -118,18 +123,25 @@ public class JobReceiver {
      * 添加任务
      */
     private void addJob(Job job, JobPo jobPo) throws DupEntryException {
-        if (job.isCron()) {
-            addCronJob(jobPo);
-        } else if (job.isRepeatable()) {
-            addRepeatJob(jobPo);
-        } else {
-            addTriggerTimeJob(jobPo);
+        if(JobStatUtils.checkJobNeedSubmit(appContext.getFinishJobQueue(),job.getTaskId(),job.getTaskTrackerNodeGroup(),job.getTaskTrackerSubNodeGroup(),job.getJobDayRange())) {
+            if (job.isCron()) {
+                addCronJob(jobPo);
+            } else if (job.isRepeatable()) {
+                addRepeatJob(jobPo);
+            } else {
+                addTriggerTimeJob(jobPo);
+            }
+            JobStatUtils.addOrUpdateJobStat(appContext.getJobStatQueue(),job.getTaskId(),job.getTaskTrackerNodeGroup(),job.getTaskTrackerSubNodeGroup(),job.getServerFrom(),job.getJobDayRange(), JobStatType.WAIT);
+        }else{
+            JobStatUtils.addOrUpdateJobStat(appContext.getJobStatQueue(),job.getTaskId(),job.getTaskTrackerNodeGroup(),job.getTaskTrackerSubNodeGroup(),job.getServerFrom(),job.getJobDayRange(), JobStatType.FINISH);
+
         }
     }
 
     private void addTriggerTimeJob(JobPo jobPo) {
         boolean needAdd2ExecutableJobQueue = true;
         String ignoreAddOnExecuting = CollectionUtils.getValue(jobPo.getInternalExtParams(), "__LTS_ignoreAddOnExecuting");
+        //这里判断的是是否跳过正在执行的
         if (ignoreAddOnExecuting != null && "true".equals(ignoreAddOnExecuting)) {
             if (appContext.getExecutingJobQueue().getJob(jobPo.getTaskTrackerNodeGroup(),jobPo.getTaskTrackerSubNodeGroup(), jobPo.getTaskId()) != null) {
                 needAdd2ExecutableJobQueue = false;
@@ -137,40 +149,46 @@ public class JobReceiver {
         }
         if (needAdd2ExecutableJobQueue) {
             jobPo.setInternalExtParam(Constants.EXE_SEQ_ID, JobUtils.generateExeSeqId(jobPo));
-            appContext.getExecutableJobQueue().add(jobPo);
+            appContext.getExecutableJobQueue().add(jobPo); //如果存在会抛出deputyException
+            //如果添加成功 添加statQueue
         }
     }
 
+
     /**
-     * 更新任务
+     * 组合任务\更新任务
      **/
-    private boolean replaceOnExist(Job job, JobPo jobPo) {
+    private boolean composeJob(Job job, JobPo jobPo) {
 
         // 得到老的job
         JobPo existJobPo = appContext.getExecutableJobQueue().getJob(job.getTaskTrackerNodeGroup(),job.getTaskTrackerSubNodeGroup(), jobPo.getTaskId());
-        if (existJobPo == null) {
+        if(existJobPo!=null){
+            JobComposeUtils.composeExecutableJob(jobPo,appContext.getExecutableJobQueue());
+        }else{
             existJobPo = appContext.getCronJobQueue().getJob(job.getTaskTrackerNodeGroup(),job.getTaskTrackerSubNodeGroup(), job.getTaskId());
-            if (existJobPo == null) {
+            if(existJobPo!=null) {
+                JobComposeUtils.composeCronJob(jobPo,appContext.getCronJobQueue());
+                updateCronJob(existJobPo);
+            }else{
                 existJobPo = appContext.getRepeatJobQueue().getJob(job.getTaskTrackerNodeGroup(),job.getTaskTrackerSubNodeGroup(), job.getTaskId());
+                if(existJobPo!=null) {
+                    JobComposeUtils.composeRepeatJob(jobPo,appContext.getRepeatJobQueue());
+                    updateRepeatJob(existJobPo);
+
+                }
             }
         }
         if (existJobPo != null) {
-            String jobId = existJobPo.getJobId();
-            // 1. 3个都删除下
-            appContext.getExecutableJobQueue().removeBatch(jobPo.getRealTaskId(), jobPo.getTaskTrackerNodeGroup(),jobPo.getTaskTrackerSubNodeGroup());
-            appContext.getCronJobQueue().remove(jobId);
-            appContext.getRepeatJobQueue().remove(jobId);
-
-            jobPo.setJobId(jobId);
-        }
-
-        // 2. 重新添加任务
-        try {
-            addJob(job, jobPo);
-        } catch (DupEntryException e) {
-            // 一般不会走到这里
-            LOGGER.warn("Job already exist twice. {}", job);
-            return false;
+            JobStatUtils.addOrUpdateJobStat(appContext.getJobStatQueue(),job.getTaskId(),job.getTaskTrackerNodeGroup(),job.getTaskTrackerSubNodeGroup(),job.getServerFrom(),job.getJobDayRange(), JobStatType.WAIT);
+        }else {
+            // 2. 重新添加任务
+            try {
+                addJob(job, jobPo);
+            } catch (DupEntryException e) {
+                // 一般不会走到这里
+                LOGGER.warn("Job already exist twice. {}", job);
+                return false;
+            }
         }
         return true;
     }
@@ -182,11 +200,11 @@ public class JobReceiver {
         Date nextTriggerTime = CronExpressionUtils.getNextTriggerTime(jobPo.getCronExpression());
         if (nextTriggerTime != null) {
 
-            if (appContext.getRepeatJobQueue().getJob(jobPo.getTaskTrackerNodeGroup(),jobPo.getTaskTrackerSubNodeGroup(), jobPo.getTaskId()) != null) {
+            JobPo repeatJobPo = appContext.getRepeatJobQueue().getJob(jobPo.getTaskTrackerNodeGroup(),jobPo.getTaskTrackerSubNodeGroup(), jobPo.getTaskId());
+            if (repeatJobPo!= null) {
                 //  这种情况是 由repeat 任务变为了 Cron任务
-                throw new DupEntryException();
+                appContext.getRepeatJobQueue().remove(repeatJobPo.getJobId());
             }
-
             // 1.add to cron job queue
             appContext.getCronJobQueue().add(jobPo);
 
@@ -199,8 +217,35 @@ public class JobReceiver {
                         jobPo.setInternalExtParam(Constants.EXE_SEQ_ID, JobUtils.generateExeSeqId(jobPo));
                         appContext.getExecutableJobQueue().add(jobPo);
                     } catch (DupEntryException e) {
-                        appContext.getCronJobQueue().remove(jobPo.getJobId());
-                        throw e;
+                        JobComposeUtils.composeExecutableJob(jobPo,appContext.getExecutableJobQueue());
+                    }
+                }
+            } else {
+                // 对于不需要依赖上一周期的,采取批量生成的方式
+                appContext.getNonRelyOnPrevCycleJobScheduler().addScheduleJobForOneHour(jobPo);
+            }
+        }
+    }
+
+    private void updateCronJob(JobPo jobPo) throws DupEntryException {
+        Date nextTriggerTime = CronExpressionUtils.getNextTriggerTime(jobPo.getCronExpression());
+        if (nextTriggerTime != null) {
+
+            JobPo repeatJobPo = appContext.getRepeatJobQueue().getJob(jobPo.getTaskTrackerNodeGroup(),jobPo.getTaskTrackerSubNodeGroup(), jobPo.getTaskId());
+            if (repeatJobPo!= null) {
+                //  这种情况是 由repeat 任务变为了 Cron任务
+                appContext.getRepeatJobQueue().remove(repeatJobPo.getJobId());
+            }
+            if (JobUtils.isRelyOnPrevCycle(jobPo)) {
+                // 没有正在执行, 则添加
+                if (appContext.getExecutingJobQueue().getJob(jobPo.getTaskTrackerNodeGroup(),jobPo.getTaskTrackerSubNodeGroup(), jobPo.getTaskId()) == null) {
+                    // 2. add to executable queue
+                    jobPo.setTriggerTime(nextTriggerTime.getTime());
+                    try {
+                        jobPo.setInternalExtParam(Constants.EXE_SEQ_ID, JobUtils.generateExeSeqId(jobPo));
+                        appContext.getExecutableJobQueue().add(jobPo);
+                    } catch (DupEntryException e) {
+                        JobComposeUtils.composeExecutableJob(jobPo,appContext.getExecutableJobQueue());
                     }
                 }
             } else {
@@ -215,9 +260,10 @@ public class JobReceiver {
      */
     private void addRepeatJob(JobPo jobPo) throws DupEntryException {
 
-        if (appContext.getCronJobQueue().getJob(jobPo.getTaskTrackerNodeGroup(),jobPo.getTaskTrackerSubNodeGroup(), jobPo.getTaskId()) != null) {
+        JobPo crontabJob = appContext.getCronJobQueue().getJob(jobPo.getTaskTrackerNodeGroup(),jobPo.getTaskTrackerSubNodeGroup(), jobPo.getTaskId());
+        if (crontabJob != null) {
             //  这种情况是 由cron 任务变为了 repeat 任务
-            throw new DupEntryException();
+            appContext.getCronJobQueue().remove(crontabJob.getJobId());
         }
 
         // 1.add to repeat job queue
@@ -232,8 +278,34 @@ public class JobReceiver {
                     jobPo.setInternalExtParam(Constants.EXE_SEQ_ID, JobUtils.generateExeSeqId(jobPo));
                     appContext.getExecutableJobQueue().add(jobPo);
                 } catch (DupEntryException e) {
-                    appContext.getRepeatJobQueue().remove(jobPo.getJobId());
-                    throw e;
+                    JobComposeUtils.composeExecutableJob(jobPo,appContext.getExecutableJobQueue());
+                }
+            }
+        } else {
+            // 对于不需要依赖上一周期的,采取批量生成的方式
+            appContext.getNonRelyOnPrevCycleJobScheduler().addScheduleJobForOneHour(jobPo);
+        }
+    }
+
+
+    private void updateRepeatJob(JobPo jobPo) throws DupEntryException {
+
+        JobPo crontabJob = appContext.getCronJobQueue().getJob(jobPo.getTaskTrackerNodeGroup(),jobPo.getTaskTrackerSubNodeGroup(), jobPo.getTaskId());
+        if (crontabJob != null) {
+            //  这种情况是 由cron 任务变为了 repeat 任务
+            appContext.getCronJobQueue().remove(crontabJob.getJobId());
+        }
+
+        if (JobUtils.isRelyOnPrevCycle(jobPo)) {
+            // 没有正在执行, 则添加
+            if (appContext.getExecutingJobQueue().getJob(jobPo.getTaskTrackerNodeGroup(), jobPo.getTaskTrackerSubNodeGroup(),jobPo.getTaskId()) == null) {
+                // 2. add to executable queue
+                try {
+                    jobPo.setRepeatedCount(1); //第一次job的repeatedCount为1
+                    jobPo.setInternalExtParam(Constants.EXE_SEQ_ID, JobUtils.generateExeSeqId(jobPo));
+                    appContext.getExecutableJobQueue().add(jobPo);
+                } catch (DupEntryException e) {
+                    JobComposeUtils.composeExecutableJob(jobPo,appContext.getExecutableJobQueue());
                 }
             }
         } else {

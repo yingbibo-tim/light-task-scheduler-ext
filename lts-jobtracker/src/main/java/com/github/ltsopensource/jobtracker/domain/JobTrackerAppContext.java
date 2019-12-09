@@ -34,6 +34,7 @@ public class JobTrackerAppContext extends AppContext {
     private FeedbackJobSendChecker feedbackJobSendChecker;
     private ExecutableDeadJobChecker executableDeadJobChecker;
 
+
     // old data handler, dirty data
     private OldDataHandler oldDataHandler;
     // biz logger
@@ -52,6 +53,13 @@ public class JobTrackerAppContext extends AppContext {
     private JobFeedbackQueue jobFeedbackQueue;
 	private SuspendJobQueue suspendJobQueue;
     private RepeatJobQueue repeatJobQueue;
+
+    //jobStat queue
+    private JobStatQueue jobStatQueue;
+    //jobfinish queue
+    private FinishJobQueue finishJobQueue;
+
+
     private PreLoader preLoader;
     private JobReceiver jobReceiver;
     private JobSender jobSender;
@@ -194,6 +202,22 @@ public class JobTrackerAppContext extends AppContext {
         this.repeatJobQueue = repeatJobQueue;
     }
 
+    public JobStatQueue getJobStatQueue() {
+        return jobStatQueue;
+    }
+
+    public void setJobStatQueue(JobStatQueue jobStatQueue) {
+        this.jobStatQueue = jobStatQueue;
+    }
+
+    public FinishJobQueue getFinishJobQueue() {
+        return finishJobQueue;
+    }
+
+    public void setFinishJobQueue(FinishJobQueue finishJobQueue) {
+        this.finishJobQueue = finishJobQueue;
+    }
+
     public NonRelyOnPrevCycleJobScheduler getNonRelyOnPrevCycleJobScheduler() {
         return nonRelyOnPrevCycleJobScheduler;
     }
@@ -217,4 +241,5 @@ public class JobTrackerAppContext extends AppContext {
     public void setExecutableDeadJobChecker(ExecutableDeadJobChecker executableDeadJobChecker) {
         this.executableDeadJobChecker = executableDeadJobChecker;
     }
+
 }

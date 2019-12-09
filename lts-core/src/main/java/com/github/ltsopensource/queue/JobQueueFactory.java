@@ -25,6 +25,10 @@ public interface JobQueueFactory {
 
     SuspendJobQueue getSuspendJobQueue(Config config);
 
+    FinishJobQueue getFinishJobQueue(Config config);
+
+    JobStatQueue getJobStatQueue(Config config);
+
     PreLoader getPreLoader(AppContext appContext);
 }
 

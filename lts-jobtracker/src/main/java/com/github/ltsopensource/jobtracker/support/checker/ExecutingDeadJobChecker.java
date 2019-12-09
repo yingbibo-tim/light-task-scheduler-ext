@@ -23,6 +23,10 @@ import com.github.ltsopensource.jobtracker.channel.ChannelWrapper;
 import com.github.ltsopensource.jobtracker.domain.JobTrackerAppContext;
 import com.github.ltsopensource.jobtracker.monitor.JobTrackerMStatReporter;
 import com.github.ltsopensource.queue.domain.JobPo;
+import com.github.ltsopensource.queue.domain.JobStatPo;
+import com.github.ltsopensource.queue.domain.JobStatType;
+import com.github.ltsopensource.queue.support.JobComposeUtils;
+import com.github.ltsopensource.queue.support.JobStatUtils;
 import com.github.ltsopensource.remoting.AsyncCallback;
 import com.github.ltsopensource.remoting.Channel;
 import com.github.ltsopensource.remoting.ResponseFuture;
@@ -40,6 +44,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/19/14.
@@ -205,6 +210,7 @@ public class ExecutingDeadJobChecker {
                 appContext.getExecutableJobQueue().add(jobPo);
             } catch (DupEntryException e) {
                 LOGGER.warn("ExecutableJobQueue already exist:" + JSON.toJSONString(jobPo));
+                JobComposeUtils.composeExecutableJob(jobPo,appContext.getExecutableJobQueue());
             }
 
             // 2. remove from executing queue
@@ -216,7 +222,7 @@ public class ExecutingDeadJobChecker {
             jobLogPo.setLevel(Level.WARN);
             jobLogPo.setLogType(LogType.FIXED_DEAD);
             appContext.getJobLogger().log(jobLogPo);
-
+            JobStatUtils.changeJobStat(appContext.getJobStatQueue(),appContext.getFinishJobQueue(),jobPo.getTaskId(),jobPo.getTaskTrackerNodeGroup(),jobPo.getTaskTrackerSubNodeGroup(),JobStatType.WAIT);
             stat.incFixExecutingJobNum();
 
         } catch (Throwable t) {

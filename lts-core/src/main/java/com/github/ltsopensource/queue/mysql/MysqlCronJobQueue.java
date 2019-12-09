@@ -20,13 +20,18 @@ public class MysqlCronJobQueue extends MysqlSchedulerJobQueue implements CronJob
     }
 
     @Override
+    public boolean add(JobPo jobPo) {
+        return super.add(getTableName(), jobPo);
+    }
+
+    @Override
     protected String getTableName(JobQueueReq request) {
         return getTableName();
     }
 
     @Override
-    public boolean add(JobPo jobPo) {
-        return super.add(getTableName(), jobPo);
+    protected String getTableName(String taskTrackerNodeGroup) {
+        return getTableName();
     }
 
     @Override

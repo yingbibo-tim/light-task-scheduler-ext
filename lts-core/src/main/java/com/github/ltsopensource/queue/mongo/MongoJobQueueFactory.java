@@ -44,6 +44,16 @@ public class MongoJobQueueFactory implements JobQueueFactory {
     }
 
     @Override
+    public FinishJobQueue getFinishJobQueue(Config config) {
+        return null;
+    }
+
+    @Override
+    public JobStatQueue getJobStatQueue(Config config) {
+        return null;
+    }
+
+    @Override
     public PreLoader getPreLoader(AppContext appContext) {
         return new MongoPreLoader(appContext);
     }
