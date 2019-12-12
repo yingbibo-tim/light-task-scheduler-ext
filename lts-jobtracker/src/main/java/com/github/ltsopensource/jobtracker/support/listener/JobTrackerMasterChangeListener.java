@@ -26,6 +26,7 @@ public class JobTrackerMasterChangeListener implements MasterChangeListener {
             appContext.getExecutableDeadJobChecker().start();  //查询等待任务已经发送到consumer上的时候 但是还没执行 1分钟时间
             appContext.getExecutingDeadJobChecker().start();  //
             appContext.getNonRelyOnPrevCycleJobScheduler().start();
+            appContext.getJobStatChecker().start();
         } else {
             // 如果 master 节点不是自己
 
@@ -34,6 +35,7 @@ public class JobTrackerMasterChangeListener implements MasterChangeListener {
             appContext.getExecutableDeadJobChecker().stop();
             appContext.getExecutingDeadJobChecker().stop();
             appContext.getNonRelyOnPrevCycleJobScheduler().stop();
+            appContext.getJobStatChecker().stop();
         }
     }
 }

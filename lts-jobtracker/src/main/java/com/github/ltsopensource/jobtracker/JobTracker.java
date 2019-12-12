@@ -18,6 +18,7 @@ import com.github.ltsopensource.jobtracker.support.OldDataHandler;
 import com.github.ltsopensource.jobtracker.support.checker.ExecutableDeadJobChecker;
 import com.github.ltsopensource.jobtracker.support.checker.ExecutingDeadJobChecker;
 import com.github.ltsopensource.jobtracker.support.checker.FeedbackJobSendChecker;
+import com.github.ltsopensource.jobtracker.support.checker.JobStatChecker;
 import com.github.ltsopensource.jobtracker.support.cluster.JobClientManager;
 import com.github.ltsopensource.jobtracker.support.cluster.TaskTrackerManager;
 import com.github.ltsopensource.jobtracker.support.listener.JobNodeChangeListener;
@@ -71,6 +72,7 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApp
         appContext.setExecutableDeadJobChecker(new ExecutableDeadJobChecker(appContext));
         appContext.setExecutingDeadJobChecker(new ExecutingDeadJobChecker(appContext));
         appContext.setFeedbackJobSendChecker(new FeedbackJobSendChecker(appContext));
+        appContext.setJobStatChecker(new JobStatChecker(appContext));
 
         appContext.getHttpCmdServer().registerCommands(
                 new LoadJobHttpCmd(appContext),     // 手动加载任务

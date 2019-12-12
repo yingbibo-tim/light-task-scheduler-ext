@@ -13,6 +13,8 @@ import com.github.ltsopensource.store.jdbc.builder.InsertSql;
 import com.github.ltsopensource.store.jdbc.builder.SelectSql;
 import com.github.ltsopensource.store.jdbc.builder.UpdateSql;
 
+import java.util.List;
+
 /**
  * @author yingbibo
  * on 2019-12-04
@@ -51,6 +53,17 @@ public class MysqlFinishJobQueue extends JdbcAbstractAccess implements FinishJob
 				.and("task_tracker_node_group = ?", taskTrackerNodeGroup)
 				.and("task_tracker_sub_node_group = ?",taskTrackerSubNodeGroup)
 				.single(RshHolder.JOB_FINISH_PO_RSH);
+	}
+
+	@Override
+	public List<JobFinishPo> getJobs(String taskTrackerNodeGroup,int start, int size) {
+		return new SelectSql(getSqlTemplate())
+				.select()
+				.all()
+				.from()
+				.table(getTableName(taskTrackerNodeGroup))
+				.limit(start,size)
+				.list(RshHolder.JOB_FINISH_PO_LIST_RSH);
 	}
 
 	@Override

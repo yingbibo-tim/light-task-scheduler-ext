@@ -18,6 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class JobStatUtils {
 
 
+	private final static Long DAY_TIMESTAMP = 1000*60*60*24L;
 
 	public static void changeJobStat(JobStatQueue jobStatQueue,FinishJobQueue finishJobQueue, String taskId,String taskTrackerNodeGroup,String taskTrackerSubNodeGroup,JobStatType jobStatType){
 		List<JobStatPo> jobStatPoList = jobStatQueue.getJobs(taskTrackerNodeGroup,taskTrackerSubNodeGroup,taskId);
@@ -41,12 +42,20 @@ public class JobStatUtils {
 			if(jobFinishPo!=null) {
 				long nowTimeStamp = SystemClock.now();
 				long lastTimeStamp = jobFinishPo.getGmtModified();
-				if( (nowTimeStamp-lastTimeStamp)/1000/60/60/24<jobDayRange){
+				if( (nowTimeStamp-lastTimeStamp)/DAY_TIMESTAMP<jobDayRange){
 					needAdd = false;
 				}
 			}
 		}
 		return needAdd;
+	}
+
+	public static boolean checkJobNeedSubmit(Long jobDayRange,Long finishTimeStamp){
+		if(jobDayRange==null){
+			return true;
+		}
+		long nowTimeStamp = SystemClock.now();
+		return (nowTimeStamp - finishTimeStamp) / DAY_TIMESTAMP >= jobDayRange;
 	}
 
 	public static boolean addOrUpdateJobStat(JobStatQueue jobStatQueue,String taskId,String taskTrackerNodeGroup,String taskTrackerSubNodeGroup,String serverFrom,Long jobDayRange,JobStatType jobStatType){

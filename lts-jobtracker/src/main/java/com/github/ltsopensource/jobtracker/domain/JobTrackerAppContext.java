@@ -11,6 +11,7 @@ import com.github.ltsopensource.jobtracker.support.OldDataHandler;
 import com.github.ltsopensource.jobtracker.support.checker.ExecutableDeadJobChecker;
 import com.github.ltsopensource.jobtracker.support.checker.ExecutingDeadJobChecker;
 import com.github.ltsopensource.jobtracker.support.checker.FeedbackJobSendChecker;
+import com.github.ltsopensource.jobtracker.support.checker.JobStatChecker;
 import com.github.ltsopensource.jobtracker.support.cluster.JobClientManager;
 import com.github.ltsopensource.jobtracker.support.cluster.TaskTrackerManager;
 import com.github.ltsopensource.queue.*;
@@ -33,6 +34,7 @@ public class JobTrackerAppContext extends AppContext {
     private ExecutingDeadJobChecker executingDeadJobChecker;
     private FeedbackJobSendChecker feedbackJobSendChecker;
     private ExecutableDeadJobChecker executableDeadJobChecker;
+    private JobStatChecker jobStatChecker;
 
 
     // old data handler, dirty data
@@ -242,4 +244,11 @@ public class JobTrackerAppContext extends AppContext {
         this.executableDeadJobChecker = executableDeadJobChecker;
     }
 
+    public JobStatChecker getJobStatChecker() {
+        return jobStatChecker;
+    }
+
+    public void setJobStatChecker(JobStatChecker jobStatChecker) {
+        this.jobStatChecker = jobStatChecker;
+    }
 }

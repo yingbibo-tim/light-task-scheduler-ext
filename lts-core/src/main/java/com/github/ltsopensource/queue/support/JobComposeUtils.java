@@ -21,6 +21,7 @@ public class JobComposeUtils {
 		while (incr.getAndIncrement()< COUNT){
 			JobPo existJobPo = executableJobQueue.getJob(jobPo.getTaskTrackerNodeGroup(),jobPo.getTaskTrackerSubNodeGroup(), jobPo.getTaskId());
 			if(existJobPo!=null){
+				jobPo.setIsRunning(existJobPo.isRunning());
 				jobPo.compose(existJobPo);
 				if(executableJobQueue.selectiveUpdateByJobIdAndLastGmtModified(jobPo,existJobPo.getGmtModified())){
 					return Boolean.TRUE;
@@ -37,6 +38,7 @@ public class JobComposeUtils {
 		while (incr.getAndIncrement()< COUNT){
 			JobPo existJobPo = cronJobQueue.getJob(jobPo.getTaskTrackerNodeGroup(),jobPo.getTaskTrackerSubNodeGroup(), jobPo.getTaskId());
 			if(existJobPo!=null){
+				jobPo.setIsRunning(existJobPo.isRunning());
 				jobPo.compose(existJobPo);
 				if(cronJobQueue.selectiveUpdateByJobIdAndLastGmtModified(jobPo,existJobPo.getGmtModified())){
 					return Boolean.TRUE;
@@ -53,6 +55,7 @@ public class JobComposeUtils {
 		while (incr.getAndIncrement()< COUNT){
 			JobPo existJobPo = repeatJobQueue.getJob(jobPo.getTaskTrackerNodeGroup(),jobPo.getTaskTrackerSubNodeGroup(), jobPo.getTaskId());
 			if(existJobPo!=null){
+				jobPo.setIsRunning(existJobPo.isRunning());
 				jobPo.compose(existJobPo);
 				if(repeatJobQueue.selectiveUpdateByJobIdAndLastGmtModified(jobPo,existJobPo.getGmtModified())){
 					return Boolean.TRUE;

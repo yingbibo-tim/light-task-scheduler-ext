@@ -31,4 +31,6 @@ public interface FinishJobQueue {
 	JobFinishPo getJob(String taskTrackerNodeGroup,String taskTrackerSubNodeGroup,String taskId);
 	void update(String taskTrackerNodeGroup,Long id);
 
+	List<JobFinishPo> getJobs(String taskTrackerNodeGroup,int start,int limit);
+
 }
