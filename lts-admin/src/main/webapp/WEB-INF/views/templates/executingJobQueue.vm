@@ -47,6 +47,12 @@
                                     #end
                                 </select>
                             </div>
+                            <label class="col-sm-2 control-label" style="width:10%">执行子节点</label>
+
+                            <div class="col-sm-3">
+                                <input type="text" class="form-control" name="taskTrackerSubNodeGroup"
+                                       placeholder="请输入执行子节点">
+                            </div>
                             <label class="col-sm-2 control-label" style="width:10%">反馈客户端</label>
 
                             <div class="col-sm-2">
@@ -92,6 +98,7 @@
             <th data-hide="all">提交节点组</th>
             <th>类型</th>
             <th>执行节点组</th>
+            <th>执行子节点</th>
             <th>Cron表达式</th>
             <th data-hide="phone,tablet">重复时间间隔</th>
             <th data-hide="all">重复次数</th>
@@ -112,6 +119,7 @@
             <td>{{row.submitNodeGroup}}</td>
             <td>{{row.jobType | format: 'jobTypeFormat', row}}</td>
             <td>{{row.taskTrackerNodeGroup}}</td>
+            <td>{{row.taskTrackerSubNodeGroup}}</td>
             <td>{{row.cronExpression}}</td>
             <td>{{row.repeatInterval | format: 'repeatIntervalFormat', row}}</td>
             <td>{{row.repeatCount | format:'repeatCountFormat', row}}</td>

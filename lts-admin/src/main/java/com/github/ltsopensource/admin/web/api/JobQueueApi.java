@@ -238,6 +238,7 @@ public class JobQueueApi extends AbstractMVC {
         try {
             Assert.hasLength(request.getTaskId(), I18nManager.getMessage("taskId.not.null"));
             Assert.hasLength(request.getTaskTrackerNodeGroup(), "taskTrackerNodeGroup不能为空!");
+            Assert.hasLength(request.getTaskTrackerSubNodeGroup(),"taskTrackerSubNodeGroup不能为空!");
             if (request.getNeedFeedback()) {
                 Assert.hasLength(request.getSubmitNodeGroup(), "submitNodeGroup不能为空!");
             }
@@ -275,6 +276,7 @@ public class JobQueueApi extends AbstractMVC {
         }
         // 执行节点的group名称
         job.setTaskTrackerNodeGroup(request.getTaskTrackerNodeGroup());
+        job.setTaskTrackerSubNodeGroup(request.getTaskTrackerSubNodeGroup());
         job.setSubmitNodeGroup(request.getSubmitNodeGroup());
 
         job.setNeedFeedback(request.getNeedFeedback());

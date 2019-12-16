@@ -151,6 +151,7 @@ public class MysqlJobLogger extends JdbcAbstractAccess implements JobLogger {
                 .andOnNotEmpty("task_id = ?", request.getTaskId())
                 .andOnNotEmpty("real_task_id = ?", request.getRealTaskId())
                 .andOnNotEmpty("task_tracker_node_group = ?", request.getTaskTrackerNodeGroup())
+                .andOnNotEmpty("task_tracker_sub_node_group = ?", request.getTaskTrackerSubNodeGroup())
                 .andOnNotEmpty("log_type = ?", request.getLogType())
                 .andOnNotEmpty("level = ?", request.getLevel())
                 .andOnNotEmpty("success = ?", request.getSuccess())

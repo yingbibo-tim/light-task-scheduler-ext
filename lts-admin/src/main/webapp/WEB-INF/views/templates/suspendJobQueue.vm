@@ -47,6 +47,14 @@
                                     #end
                                 </select>
                             </div>
+
+                            <label class="col-sm-2 control-label" style="width:10%">执行子节点</label>
+
+                            <div class="col-sm-3">
+                                <input type="text" class="form-control" name="taskTrackerSubNodeGroup"
+                                       placeholder="请输入执行子节点">
+                            </div>
+
                             <label class="col-sm-2 control-label" style="width:10%">反馈客户端</label>
 
                             <div class="col-sm-2">
@@ -173,6 +181,13 @@
                                     #end
                                 </select>
                             </div>
+
+                            <label class="col-sm-2 control-label" style="width:10%">执行子节点</label>
+
+                            <div class="col-sm-3">
+                                <input type="text" class="form-control" name="taskTrackerSubNodeGroup"
+                                       placeholder="请输入执行子节点">
+                            </div>
                         </div>
                         <div class="form-group">
                             <label class="col-sm-2 control-label w_120">用户参数</label>
@@ -208,6 +223,7 @@
             <th data-hide="all">提交节点组</th>
             <th>类型</th>
             <th>执行节点组</th>
+            <th>执行子节点组</th>
             <th>Cron表达式</th>
             <th>重复时间间隔</th>
             <th>依赖上一周期</th>
@@ -228,6 +244,7 @@
             <td>{{row.submitNodeGroup}}</td>
             <td>{{row.jobType | format: 'jobTypeFormat', row}}</td>
             <td>{{row.taskTrackerNodeGroup}}</td>
+            <td>{{row.taskTrackerSubNodeGroup}}</td>
             <td>{{row.cronExpression}}</td>
             <td>{{row.repeatInterval | format: 'repeatIntervalFormat', row}}</td>
             <td>{{row.relyOnPrevCycle | format:'formatRelyOnPrevCycle',row}}</td>
@@ -390,6 +407,10 @@
             }
             if (!params['taskTrackerNodeGroup']) {
                 sweetAlert("请选择执行节点组", "如果列表中没有，请在节点组管理中添加，并启动改节点。", "error");
+                return;
+            }
+            if (!params['taskTrackerSubNodeGroup']) {
+                sweetAlert("请填写子节点组", "请填写子节点组。", "error");
                 return;
             }
             if (!params['maxRetryTimes'] || !/^\d+$/.test(params['maxRetryTimes'])) {

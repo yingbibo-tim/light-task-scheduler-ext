@@ -15,6 +15,8 @@ public class JobLoggerRequest extends PaginationReq {
 
     private String taskTrackerNodeGroup;
 
+    private String taskTrackerSubNodeGroup;
+
     private String logType;
 
     private String level;
@@ -47,6 +49,14 @@ public class JobLoggerRequest extends PaginationReq {
 
     public void setTaskTrackerNodeGroup(String taskTrackerNodeGroup) {
         this.taskTrackerNodeGroup = taskTrackerNodeGroup;
+    }
+
+    public String getTaskTrackerSubNodeGroup() {
+        return taskTrackerSubNodeGroup;
+    }
+
+    public void setTaskTrackerSubNodeGroup(String taskTrackerSubNodeGroup) {
+        this.taskTrackerSubNodeGroup = taskTrackerSubNodeGroup;
     }
 
     public String getLogType() {

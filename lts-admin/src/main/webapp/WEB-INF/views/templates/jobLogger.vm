@@ -24,8 +24,9 @@
                                 <input type="text" class="form-control" name="realTaskId" value="$!realTaskId"
                                        placeholder="请输入你提交的任务ID(TaskId)">
                             </div>
-
-                            <label class="col-sm-1 control-label">节点组</label>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 control-label">节点组</label>
 
                             <div class="col-sm-3">
                                 <select class="form-control selectpicker" name="taskTrackerNodeGroup">
@@ -39,7 +40,14 @@
                                     #end
                                 </select>
                             </div>
+
+                            <label class="col-sm-3 control-label" style="width:10%">执行子节点</label>
+                            <div class="col-sm-3">
+                                <input type="text" class="form-control" name="taskTrackerSubNodeGroup" placeholder="请输入执行子节点" value="$!taskTrackerSubNodeGroup">
+                            </div>
                         </div>
+
+
                         <div class="form-group row">
                             <label class="col-sm-2 control-label">日志类型</label>
 
@@ -126,6 +134,7 @@
             <th>日志记录时间</th>
             <th data-hide="all">日志创建时间</th>
             <th>执行节点组</th>
+            <th>执行子节点</th>
             <th>类型</th>
             <th data-hide="all">执行节点标识</th>
             <th data-hide="phone,tablet">提交节点组</th>
@@ -149,6 +158,7 @@
             <td>{{row.logTime | dateFormat:'yyyy-MM-dd HH:mm:ss'}}</td>
             <td>{{row.gmtCreated | dateFormat:'yyyy-MM-dd HH:mm:ss'}}</td>
             <td>{{row.taskTrackerNodeGroup}}</td>
+            <td>{{row.taskTrackerSubNodeGroup}}</td>
             <td>{{row.jobType | format: 'jobTypeFormat', row}}</td>
             <td>{{row.taskTrackerIdentity}}</td>
             <td>{{row.submitNodeGroup}}</td>
@@ -227,6 +237,7 @@
 //                return;
 //            }
             var taskTrackerNodeGroup = $("select[name='taskTrackerNodeGroup']").val();
+            var taskTrackerSubNodeGroup = $("input[name='taskTrackerSubNodeGroup']").val();
             var logType = $("select[name='logType']").val();
             var logLevel = $("select[name='logLevel']").val();
             var success = $("select[name='success']").val();
@@ -252,6 +263,7 @@
             var params = {
                 realTaskId: realTaskId,
                 taskTrackerNodeGroup: taskTrackerNodeGroup,
+                taskTrackerSubNodeGroup: taskTrackerSubNodeGroup,
                 logType: logType,
                 level: logLevel,
                 success: success,
