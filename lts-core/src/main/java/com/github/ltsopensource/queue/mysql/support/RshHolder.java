@@ -59,8 +59,10 @@ public class RshHolder {
         @Override
         public List<JobFinishPo> handle(ResultSet rs) throws SQLException {
             List<JobFinishPo> jobFinishPoList = new ArrayList<>();
-            JobFinishPo jobFinishPo = getJobFinishPo(rs);
-            jobFinishPoList.add(jobFinishPo);
+            while(rs.next()) {
+                JobFinishPo jobFinishPo = getJobFinishPo(rs);
+                jobFinishPoList.add(jobFinishPo);
+            }
             return jobFinishPoList;
         }
     };

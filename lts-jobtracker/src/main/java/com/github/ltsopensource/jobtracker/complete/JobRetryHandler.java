@@ -19,6 +19,7 @@ import com.github.ltsopensource.jobtracker.domain.JobTrackerAppContext;
 import com.github.ltsopensource.queue.domain.JobPo;
 import com.github.ltsopensource.queue.domain.JobStatPo;
 import com.github.ltsopensource.queue.domain.JobStatType;
+import com.github.ltsopensource.queue.support.JobComposeUtils;
 import com.github.ltsopensource.queue.support.JobStatUtils;
 import com.github.ltsopensource.store.jdbc.exception.DupEntryException;
 
@@ -111,7 +112,7 @@ public class JobRetryHandler {
                 appContext.getExecutableJobQueue().add(jobPo);
             } catch (DupEntryException e) {
                 LOGGER.warn("ExecutableJobQueue already exist:" + JSON.toJSONString(jobPo));
-                appContext.getExecutableJobQueue().add(jobPo);
+                JobComposeUtils.composeExecutableJob(jobPo,appContext.getExecutableJobQueue());
             }
             // 从正在执行的队列中移除
             appContext.getExecutingJobQueue().remove(jobPo.getJobId());
