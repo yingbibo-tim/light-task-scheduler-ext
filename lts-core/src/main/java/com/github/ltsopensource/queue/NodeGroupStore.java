@@ -15,7 +15,7 @@ public interface NodeGroupStore {
     /**
      * 添加 NodeGroup
      */
-    void addNodeGroup(NodeType nodeType, String name);
+    void addNodeGroup(NodeType nodeType, String name,String subNodeNames);
 
     /**
      * 移除 NodeGroup

@@ -25,7 +25,7 @@ public class MysqlNodeGroupStore extends JdbcAbstractAccess implements NodeGroup
     }
 
     @Override
-    public void addNodeGroup(NodeType nodeType, String name) {
+    public void addNodeGroup(NodeType nodeType, String name,String subNodeNames) {
 
         Long count = new SelectSql(getSqlTemplate())
                 .select()
@@ -36,13 +36,14 @@ public class MysqlNodeGroupStore extends JdbcAbstractAccess implements NodeGroup
                 .and("name = ?", name)
                 .single();
         if (count > 0) {
+            removeNodeGroup(nodeType,name);
             //  already exist
             return;
         }
         new InsertSql(getSqlTemplate())
                 .insert(getTableName())
-                .columns("node_type", "name", "gmt_created")
-                .values(nodeType.name(), name, SystemClock.now())
+                .columns("node_type", "name","sub_names", "gmt_created")
+                .values(nodeType.name(), name,subNodeNames, SystemClock.now())
                 .doInsert();
     }
 

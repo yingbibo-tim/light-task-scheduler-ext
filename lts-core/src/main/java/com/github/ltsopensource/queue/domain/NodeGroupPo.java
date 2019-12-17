@@ -12,6 +12,8 @@ public class NodeGroupPo {
      * 名称
      */
     private String name;
+
+    private String subNames;
     /**
      * 创建时间
      */
@@ -31,6 +33,14 @@ public class NodeGroupPo {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getSubNames() {
+        return subNames;
+    }
+
+    public void setSubNames(String subNames) {
+        this.subNames = subNames;
     }
 
     public Long getGmtCreated() {

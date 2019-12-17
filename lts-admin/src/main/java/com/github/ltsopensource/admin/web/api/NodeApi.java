@@ -67,7 +67,7 @@ public class NodeApi extends AbstractMVC {
     @RequestMapping("node-group-add")
     public RestfulResponse addNodeGroup(NodeGroupRequest request) {
         RestfulResponse response = new RestfulResponse();
-        appContext.getNodeGroupStore().addNodeGroup(request.getNodeType(), request.getNodeGroup());
+        appContext.getNodeGroupStore().addNodeGroup(request.getNodeType(), request.getNodeGroup(),request.getSubNodeGroup());
         if (NodeType.TASK_TRACKER.equals(request.getNodeType())) {
             appContext.getExecutableJobQueue().createQueue(request.getNodeGroup());
         } else if (NodeType.JOB_CLIENT.equals(request.getNodeType())) {

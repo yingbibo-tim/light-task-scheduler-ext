@@ -200,11 +200,11 @@ public class JobQueueApi extends AbstractMVC {
         RestfulResponse response = new RestfulResponse();
 
         String nodeGroup = request.getTaskTrackerNodeGroup();
-
+        String subNodeGroup = request.getTaskTrackerSubNodeGroup();
         HttpCmd httpCmd = new DefaultHttpCmd();
         httpCmd.setCommand(HttpCmdNames.HTTP_CMD_LOAD_JOB);
         httpCmd.addParam("nodeGroup", nodeGroup);
-
+        httpCmd.addParam("subNodeGroup",subNodeGroup);
         List<Node> jobTrackerNodeList = appContext.getNodeMemCacheAccess().getNodeByNodeType(NodeType.JOB_TRACKER);
         if (CollectionUtils.isEmpty(jobTrackerNodeList)) {
             response.setMsg(I18nManager.getMessage("job.tracker.not.found"));

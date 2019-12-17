@@ -37,14 +37,17 @@ public class MongoNodeGroupStore extends MongoRepository implements NodeGroupSto
     }
 
     @Override
-    public void addNodeGroup(NodeType nodeType, String name) {
+    public void addNodeGroup(NodeType nodeType, String name,String subNodeNames) {
+        NodeGroupPo nodeGroupPo = new NodeGroupPo();
         try {
-            NodeGroupPo nodeGroupPo = new NodeGroupPo();
             nodeGroupPo.setNodeType(nodeType);
             nodeGroupPo.setName(name);
+            nodeGroupPo.setSubNames(subNodeNames);
             nodeGroupPo.setGmtCreated(SystemClock.now());
             template.save(nodeGroupPo);
         } catch (DuplicateKeyException e) {
+            removeNodeGroup(nodeType,name);
+            template.save(nodeGroupPo);
             // ignore
         }
     }

@@ -11,6 +11,8 @@ public class NodeGroupRequest {
 
     private String nodeGroup;
 
+    private String subNodeGroup;
+
     public NodeType getNodeType() {
         return nodeType;
     }
@@ -25,5 +27,13 @@ public class NodeGroupRequest {
 
     public void setNodeGroup(String nodeGroup) {
         this.nodeGroup = nodeGroup;
+    }
+
+    public String getSubNodeGroup() {
+        return subNodeGroup;
+    }
+
+    public void setSubNodeGroup(String subNodeGroup) {
+        this.subNodeGroup = subNodeGroup;
     }
 }
