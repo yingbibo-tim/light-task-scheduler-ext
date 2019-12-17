@@ -123,9 +123,27 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="col-sm-2 control-label">提交子节点组</label>
+                            <label class="col-sm-2 control-label">执行子节点组</label>
                             <div class="col-sm-3">
-                                <input type="text" class="form-control" name="taskTrackerSubNodeGroup" placeholder="子节点组"></input>
+                                <select name="taskTrackerSubNodeGroup" class="form-control">
+                                    <option value="">-- 请先选择执行节点组 --</option>
+
+                                </select>
+                            </div>
+                        </div>
+
+
+                        <div class="form-group serverFrom">
+                            <label class="col-sm-2 control-label ">任务来源</label>
+                            <div class="col-sm-3">
+                                <input type="text" class="form-control" name="serverFrom" placeholder="任务来源（来源项目名 amp-gs-hgc）, 定时，重复任务不需要填"></input>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">任务时间间隔</label>
+                            <div class="col-sm-3">
+                                <input type="text" class="form-control" name="jobDayRange" placeholder="任务时间间隔 不填默认每次更新"></input>
                             </div>
                         </div>
 
@@ -160,24 +178,28 @@
 
 <script>
     $(document).ready(function () {
-
+        $("select[name='taskTrackerSubNodeGroup']").prop("disabled","true");
         $(document).on("change", "select[name='jobType']", function () {
             var jobType = $(this).val();
             if (jobType == 'REAL_TIME_JOB') {
                 $(".lts-cron-job-group").hide();
                 $(".lts-trigger-job-group").hide();
                 $(".lts-repeat-job-group").hide();
+                $(".serverFrom").show();
             } else if (jobType == 'TRIGGER_TIME_JOB') {
                 $(".lts-cron-job-group").hide();
                 $(".lts-repeat-job-group").hide();
                 $(".lts-trigger-job-group").show();
+                $(".serverFrom").hide();
             } else if (jobType == 'CRON_JOB') {
                 $(".lts-trigger-job-group").hide();
                 $(".lts-repeat-job-group").hide();
+                $(".serverFrom").hide();
                 $(".lts-cron-job-group").show();
             } else if (jobType == 'REPEAT_JOB') {
                 $(".lts-cron-job-group").hide();
                 $(".lts-trigger-job-group").hide();
+                $(".serverFrom").hide();
                 $(".lts-repeat-job-group").show();
             }
         });
@@ -208,7 +230,7 @@
                     sweetAlert("请输入Cron表达式", "", "error");
                     return;
                 }
-            } else if (jobType == 'REPEAT_JOB') {
+            } else if (jobType == 'REPEAT_JOB' ) {
                 var repeatInterval = params['repeatInterval'];
                 if (!repeatInterval) {
                     sweetAlert("请输入重复时间间隔", "必须为数字，毫秒数", "error");
@@ -229,7 +251,7 @@
                 }
             }
 
-            debugger;
+           // debugger;
 
             // check form
             if (!params['taskId']) {
@@ -253,6 +275,19 @@
                 sweetAlert("请选择执行节点组", "如果列表中没有，请在节点组管理中添加，并启动改节点。", "error");
                 return;
             }
+
+            if (!params['taskTrackerSubNodeGroup']) {
+                sweetAlert("请选择执行子节点组", "请选择执行子节点组。", "error");
+                return;
+            }
+
+            if(jobType == 'REAL_TIME_JOB' || jobType == 'TRIGGER_TIME_JOB') {
+                if (!params['serverFrom']) {
+                    sweetAlert("请输入网站来源", "请输入网站来源。", "error");
+                    return;
+                }
+            }
+
             if (!params['maxRetryTimes'] || !/^\d+$/.test(params['maxRetryTimes'])) {
                 sweetAlert("最大重试次数必须为非负整数", "最大重试次数必须为非负整数", "error");
                 return;
@@ -280,6 +315,16 @@
                         $(".lts-cron-job-group").hide();
                         $(".lts-trigger-job-group").hide();
                         $(".lts-repeat-job-group").hide();
+
+                        var selectEle = $("select[name='taskTrackerSubNodeGroup']");
+                        selectEle.prop("disabled",true);
+                        selectEle.val("").trigger("change");
+                        selectEle.html("");
+                        var op  = document.createElement("option");
+                        op.innerHTML = "-- 请先选择执行节点组 --"
+                        op.value = "";
+                        selectEle.append(op);
+                        selectEle.selectpicker('refresh');
                     } else {
                         if (json) {
                             swal(json['msg']);
@@ -303,6 +348,33 @@
             $("input[name='cronExpression']").val(data['cron'].trim());
             $("#cronGeneratorDialog").modal("hide");
         });
+
+        $(document).on("change", "select[name='taskTrackerNodeGroup']", function () {
+            var map = $!{taskTrackerSubNodeGroups};
+            var nodeGroup = $(this).val();
+            var subNodeGroup = map[nodeGroup];
+            var selectEle = $("select[name='taskTrackerSubNodeGroup']");
+            selectEle.val("").trigger("change");
+            selectEle.html("");
+            if(!subNodeGroup){
+                subNodeGroup = [];
+                selectEle.prop("disabled",true);
+                var op  = document.createElement("option");
+                op.innerHTML = "-- 请先选择执行节点组 --"
+                op.value = "";
+                selectEle.append(op);
+            }else{
+                selectEle.prop("disabled",false);
+            }
+            for(var i=0;i<subNodeGroup.length;i++){
+                var op  = document.createElement("option");
+                op.value = subNodeGroup[i];
+                op.innerHTML = subNodeGroup[i];
+                selectEle.append(op);
+            }
+            selectEle.selectpicker('refresh');
+        });
+
     });
 </script>
 <script src="assets/js/cronValidate.js" type="text/javascript"></script>

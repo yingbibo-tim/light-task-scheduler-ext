@@ -45,6 +45,10 @@ public class JobQueueReq extends PaginationReq {
 
     private Boolean relyOnPrevCycle;
 
+    private Long jobDayRange;
+
+    private String serverFrom;
+
     public String getJobType() {
         return jobType;
     }
@@ -203,5 +207,21 @@ public class JobQueueReq extends PaginationReq {
 
     public void setRealTaskId(String realTaskId) {
         this.realTaskId = realTaskId;
+    }
+
+    public Long getJobDayRange() {
+        return jobDayRange;
+    }
+
+    public void setJobDayRange(Long jobDayRange) {
+        this.jobDayRange = jobDayRange;
+    }
+
+    public String getServerFrom() {
+        return serverFrom;
+    }
+
+    public void setServerFrom(String serverFrom) {
+        this.serverFrom = serverFrom;
     }
 }

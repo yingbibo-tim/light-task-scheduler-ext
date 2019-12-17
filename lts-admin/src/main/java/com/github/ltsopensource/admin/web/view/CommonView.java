@@ -5,14 +5,14 @@ import com.github.ltsopensource.biz.logger.domain.LogType;
 import com.github.ltsopensource.core.cluster.NodeType;
 import com.github.ltsopensource.core.commons.utils.DateUtils;
 import com.github.ltsopensource.core.constant.Level;
+import com.github.ltsopensource.json.JSONObject;
 import com.github.ltsopensource.queue.domain.NodeGroupPo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Robert HG (254963746@qq.com) on 6/6/15.
@@ -125,6 +125,12 @@ public class CommonView {
         model.addAttribute("jobClientNodeGroups", jobClientNodeGroups);
         List<NodeGroupPo> taskTrackerNodeGroups = appContext.getNodeGroupStore().getNodeGroup(NodeType.TASK_TRACKER);
         model.addAttribute("taskTrackerNodeGroups", taskTrackerNodeGroups);
+        JSONObject subTaskTrackerNodeGroups = new JSONObject();
+        for(NodeGroupPo nodeGroupPo:taskTrackerNodeGroups){
+            subTaskTrackerNodeGroups.put(nodeGroupPo.getName(), Arrays.asList(nodeGroupPo.getSubNames().split(",")));
+
+        }
+        model.addAttribute("taskTrackerSubNodeGroups",subTaskTrackerNodeGroups);
     }
 
 }

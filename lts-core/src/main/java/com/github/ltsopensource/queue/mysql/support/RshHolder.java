@@ -175,6 +175,7 @@ public class RshHolder {
                 NodeGroupPo nodeGroupPo = new NodeGroupPo();
                 nodeGroupPo.setNodeType(NodeType.valueOf(rs.getString("node_type")));
                 nodeGroupPo.setName(rs.getString("name"));
+                nodeGroupPo.setSubNames(rs.getString("sub_names"));
                 nodeGroupPo.setGmtCreated(rs.getLong("gmt_created"));
                 list.add(nodeGroupPo);
             }

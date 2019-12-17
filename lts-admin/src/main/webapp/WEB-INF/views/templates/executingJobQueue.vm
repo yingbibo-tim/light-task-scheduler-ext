@@ -47,11 +47,12 @@
                                     #end
                                 </select>
                             </div>
-                            <label class="col-sm-2 control-label" style="width:10%">执行子节点</label>
+                            <label class="col-sm-3 control-label" style="width:10%">执行子节点</label>
 
                             <div class="col-sm-3">
-                                <input type="text" class="form-control" name="taskTrackerSubNodeGroup"
-                                       placeholder="请输入执行子节点">
+                                <select name="taskTrackerSubNodeGroup" class="form-control">
+                                    <option value="">-- 不限 --</option>
+                                </select>
                             </div>
                             <label class="col-sm-2 control-label" style="width:10%">反馈客户端</label>
 
@@ -174,6 +175,31 @@
             ltsTable.post(params, 1);
         });
         $("#searchBtn").trigger("click");
+
+        $(document).on("change", "select[name='taskTrackerNodeGroup']", function () {
+            var map = $!{taskTrackerSubNodeGroups};
+            var nodeGroup = $(this).val();
+            var subNodeGroup = map[nodeGroup];
+            var selectEle = $("select[name='taskTrackerSubNodeGroup']");
+            selectEle.val("").trigger("change");
+            selectEle.html("");
+            if(!subNodeGroup){
+                subNodeGroup = [];
+
+            }
+            var op  = document.createElement("option");
+            op.innerHTML = "-- 不限 --"
+            op.value = "";
+            selectEle.append(op);
+            for(var i=0;i<subNodeGroup.length;i++){
+                var op  = document.createElement("option");
+                op.value = subNodeGroup[i];
+                op.innerHTML = subNodeGroup[i];
+                selectEle.append(op);
+            }
+            selectEle.selectpicker('refresh');
+        });
+
 
         $(document).on("click", ".job-terminate-btn", function(){
 

@@ -21,6 +21,7 @@ import com.github.ltsopensource.core.commons.utils.Assert;
 import com.github.ltsopensource.core.commons.utils.CollectionUtils;
 import com.github.ltsopensource.core.commons.utils.StringUtils;
 import com.github.ltsopensource.core.domain.Job;
+import com.github.ltsopensource.core.domain.JobType;
 import com.github.ltsopensource.core.domain.Pair;
 import com.github.ltsopensource.core.json.JSON;
 import com.github.ltsopensource.core.support.CronExpression;
@@ -293,7 +294,8 @@ public class JobQueueApi extends AbstractMVC {
         job.setPriority(request.getPriority());
         job.setMaxRetryTimes(request.getMaxRetryTimes() == null ? 0 : request.getMaxRetryTimes());
         job.setRelyOnPrevCycle(request.getRelyOnPrevCycle() == null ? true : request.getRelyOnPrevCycle());
-
+        job.setJobDayRange(request.getJobDayRange());
+        job.setServerFrom(request.getServerFrom());
         if ("REAL_TIME_JOB".equals(jobType)) {
             job.setCronExpression(null);
             job.setTriggerTime(null);
@@ -308,8 +310,10 @@ public class JobQueueApi extends AbstractMVC {
         } else if ("CRON_JOB".equals(jobType)) {
             job.setRepeatInterval(null);
             job.setRepeatCount(0);
+            job.setServerFrom(JobType.CRON.name());
         } else if ("REPEAT_JOB".equals(jobType)) {
             job.setCronExpression(null);
+            job.setServerFrom(JobType.REPEAT.name());
         }
         return addJob(job);
     }
