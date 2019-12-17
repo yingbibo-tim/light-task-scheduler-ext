@@ -38,7 +38,7 @@ public class MysqlNodeGroupStore extends JdbcAbstractAccess implements NodeGroup
         if (count > 0) {
             removeNodeGroup(nodeType,name);
             //  already exist
-            return;
+           // return;
         }
         new InsertSql(getSqlTemplate())
                 .insert(getTableName())
