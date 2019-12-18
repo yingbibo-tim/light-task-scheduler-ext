@@ -34,6 +34,11 @@ public class Config implements Serializable {
     // 监听端口
     private int listenPort;
     private String ip;
+
+    /**
+     * docker 环境下 暴露出去的Ip
+     */
+    private String ipToRegistry;
     // 任务信息存储路径(譬如TaskTracker反馈任务信息给JobTracker, JobTracker down掉了, 那么存储下来等待JobTracker可用时再发送)
     private String dataPath;
     // 集群名字
@@ -120,6 +125,14 @@ public class Config implements Serializable {
 
     public void setIp(String ip) {
         this.ip = ip;
+    }
+
+    public String getIpToRegistry() {
+        return ipToRegistry;
+    }
+
+    public void setIpToRegistry(String ipToRegistry) {
+        this.ipToRegistry = ipToRegistry;
     }
 
     public String getDataPath() {

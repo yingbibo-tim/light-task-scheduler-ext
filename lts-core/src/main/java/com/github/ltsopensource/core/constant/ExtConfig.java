@@ -114,6 +114,8 @@ public interface ExtConfig {
      * JobClient,JobTracker,TaskTracker, Monitor端: Http Cmd 端口
      */
     String HTTP_CMD_PORT = "lts.http.cmd.port";
+
+    String IP_TO_REGISTRY = "lts.ip.to.registry";
     /**
      * TaskTracker端: 是否开启网络隔离, 自杀程序, TaskTracker超过一定时间断线JobTracker，自动停止当前的所有任务
      */

@@ -167,6 +167,8 @@ public abstract class AbstractJobNode<T extends Node, Context extends AppContext
 
         LOGGER.info("Current Node config :{}", config);
 
+
+
         appContext.setEventCenter(ServiceLoader.load(EventCenter.class, config));
 
         appContext.setCommandBodyWrapper(new CommandBodyWrapper(config));

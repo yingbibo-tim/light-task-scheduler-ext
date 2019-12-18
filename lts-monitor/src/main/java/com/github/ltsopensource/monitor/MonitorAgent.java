@@ -96,6 +96,9 @@ public class MonitorAgent {
         }
     }
 
+    /**
+     * 初始化节点
+     */
     private void initNode() {
         config.setListenPort(this.appContext.getHttpCmdPort());
         NodeFactory.build(node, config);

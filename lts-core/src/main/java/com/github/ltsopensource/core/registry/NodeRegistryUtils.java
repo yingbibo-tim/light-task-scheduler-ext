@@ -92,7 +92,7 @@ public class NodeRegistryUtils {
                 .append("/")
                 .append(node.getNodeType())
                 .append(":\\\\")
-                .append(node.getIp());
+                .append(node.getIpToRegistry());
 
         if (node.getPort() != null && node.getPort() != 0) {
             path.append(":").append(node.getPort());

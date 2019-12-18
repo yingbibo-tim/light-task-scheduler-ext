@@ -18,6 +18,7 @@ public class Node {
     private String clusterName;
     private NodeType nodeType;
     private String ip;
+    private String ipToRegistry;
     private Integer port = 0;
     private String hostName;
     private String group;
@@ -83,6 +84,14 @@ public class Node {
 
     public void setIp(String ip) {
         this.ip = ip;
+    }
+
+    public String getIpToRegistry() {
+        return ipToRegistry;
+    }
+
+    public void setIpToRegistry(String ipToRegistry) {
+        this.ipToRegistry = ipToRegistry;
     }
 
     public Integer getPort() {

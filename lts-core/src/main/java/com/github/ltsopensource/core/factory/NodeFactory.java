@@ -4,6 +4,8 @@ import com.github.ltsopensource.core.cluster.Config;
 import com.github.ltsopensource.core.cluster.Node;
 import com.github.ltsopensource.core.commons.utils.NetUtils;
 import com.github.ltsopensource.core.commons.utils.StringUtils;
+import com.github.ltsopensource.core.constant.Constants;
+import com.github.ltsopensource.core.constant.ExtConfig;
 import com.github.ltsopensource.core.exception.LtsRuntimeException;
 import com.github.ltsopensource.core.support.SystemClock;
 
@@ -28,6 +30,7 @@ public class NodeFactory {
     public static void build(Node node, Config config) {
         node.setCreateTime(SystemClock.now());
         node.setIp(config.getIp());
+        node.setIpToRegistry(config.getParameter(ExtConfig.IP_TO_REGISTRY,node.getIp()));
         node.setHostName(NetUtils.getLocalHostName());
         node.setGroup(config.getNodeGroup());
         node.setPort(config.getListenPort());
