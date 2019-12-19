@@ -33,7 +33,7 @@ public abstract class AbstractPreLoader implements PreLoader {
 
     private ConcurrentHashMap<String/*taskTrackerNodeGroup*/, JobPriorityBlockingDeque> JOB_MAP = new ConcurrentHashMap<String, JobPriorityBlockingDeque>();
 
-    private final Table<String,String, JobPriorityBlockingDeque> JOB_TABLE = Tables.synchronizedTable(HashBasedTable.<String, String, JobPriorityBlockingDeque>create());
+    private final Table<String,String, JobPriorityBlockingDeque> JOB_TABLE = HashBasedTable.<String, String, JobPriorityBlockingDeque>create();
 
     Map<String,String> map = Maps.newConcurrentMap();
 
@@ -257,7 +257,7 @@ public abstract class AbstractPreLoader implements PreLoader {
         return size / (loadSize * 1.0) < factor;
     }
 
-    private JobPriorityBlockingDeque getQueue(String taskTrackerNodeGroup,String taskTrackerSubNodeGroup) {
+    private synchronized JobPriorityBlockingDeque getQueue(String taskTrackerNodeGroup,String taskTrackerSubNodeGroup) {
         JobPriorityBlockingDeque queue = JOB_TABLE.get(taskTrackerNodeGroup,taskTrackerSubNodeGroup);
         if(queue == null){
             queue = new JobPriorityBlockingDeque(loadSize);

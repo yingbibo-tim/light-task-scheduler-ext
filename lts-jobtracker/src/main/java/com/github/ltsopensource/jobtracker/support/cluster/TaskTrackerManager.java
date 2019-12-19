@@ -27,7 +27,7 @@ public class TaskTrackerManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(TaskTrackerManager.class);
 
     // 单例
-    private final Table<String,String,Set<TaskTrackerNode>> NODE_TABLE = Tables.synchronizedTable(HashBasedTable.<String, String, Set<TaskTrackerNode>>create());
+    private final Table<String,String,Set<TaskTrackerNode>> NODE_TABLE = HashBasedTable.<String, String, Set<TaskTrackerNode>>create();
 
     private JobTrackerAppContext appContext;
 
@@ -45,7 +45,7 @@ public class TaskTrackerManager {
     /**
      * 添加节点
      */
-    public void addNode(Node node) {
+    public synchronized void addNode(Node node) {
         //  channel 可能为 null 当任务节点一注册但还开始发送pull任务的时候,channel 为空
         ChannelWrapper channel = appContext.getChannelManager().getChannel(node.getGroup(),
                 node.getNodeType(), node.getIdentity());
@@ -84,7 +84,7 @@ public class TaskTrackerManager {
      *
      * @param node
      */
-    public void removeNode(Node node) {
+    public synchronized void removeNode(Node node) {
         Map<String,Set<TaskTrackerNode>> map = NODE_TABLE.row(node.getGroup());
         if(map!=null&&map.size()>0) {
             for (Set<TaskTrackerNode> taskTrackerNodes : map.values()) {
