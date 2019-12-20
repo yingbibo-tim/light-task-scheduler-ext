@@ -7,6 +7,7 @@ import com.github.ltsopensource.core.failstore.FailStoreException;
 import com.github.ltsopensource.core.json.JSON;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
+import org.mapdb.Serializer;
 
 import java.io.File;
 import java.lang.reflect.Type;
@@ -36,7 +37,7 @@ public class MapdbFailStore extends AbstractFailStore {
             String dbName = dbPath.getPath() + "/lts.db";
             db = DBMaker.fileDB(new File(dbName))
                     .closeOnJvmShutdown()
-                    .encryptionEnable("lts")
+                    .transactionEnable()
                     .make();
         } catch (Exception e) {
             throw new FailStoreException(e);
@@ -51,7 +52,7 @@ public class MapdbFailStore extends AbstractFailStore {
     @Override
     public void open() throws FailStoreException {
         try {
-            map = db.treeMap("lts");
+            map =  db.treeMap("lts").keySerializer(Serializer.STRING).valueSerializer(Serializer.STRING).createOrOpen();
             db.commit();
         } catch (Exception e) {
             throw new FailStoreException(e);

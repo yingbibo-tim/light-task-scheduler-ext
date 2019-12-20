@@ -44,7 +44,7 @@
         <springframework.version>4.2.5.RELEASE</springframework.version>
         <mina.version>2.0.9</mina.version>
         <hessian.version>4.0.38</hessian.version>
-        <mapdb.version>2.0-beta10</mapdb.version>
+        <mapdb.version>3.0.0</mapdb.version>
         <groovy.version>2.4.5</groovy.version>
         <jackson.version>2.6.3</jackson.version>
         <aspectj.version>1.7.2</aspectj.version>
