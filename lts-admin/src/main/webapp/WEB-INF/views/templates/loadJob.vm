@@ -70,7 +70,7 @@
 
         $(document).on("click", "#loadBtn", function () {
             var taskTrackerNodeGroup = $("select[name='taskTrackerNodeGroup']").val();
-            var taskTrackerSubNodeGroup = $("input[name='taskTrackerSubNodeGroup']").val();
+            var taskTrackerSubNodeGroup = $("select[name='taskTrackerSubNodeGroup']").val();
 
             $.ajax({
                 url: 'api/job-queue/load-add.do',
