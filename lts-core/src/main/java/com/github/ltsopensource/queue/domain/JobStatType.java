@@ -11,7 +11,7 @@ public enum JobStatType {
 	WAIT("wait"),
 	RUNNING("running"),
 	FINISH("finish"),
-	FIAL("fail");
+	FAIL("fail");
 
 
 	public static JobStatType get(String name){

@@ -16,7 +16,6 @@ import com.github.ltsopensource.core.support.SystemClock;
 import com.github.ltsopensource.jobtracker.domain.JobTrackerAppContext;
 import com.github.ltsopensource.queue.domain.JobFinishPo;
 import com.github.ltsopensource.queue.domain.JobPo;
-import com.github.ltsopensource.queue.domain.JobStatPo;
 import com.github.ltsopensource.queue.domain.JobStatType;
 import com.github.ltsopensource.queue.support.JobComposeUtils;
 import com.github.ltsopensource.queue.support.JobStatUtils;
@@ -24,7 +23,6 @@ import com.github.ltsopensource.store.jdbc.exception.DupEntryException;
 
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Robert HG (254963746@qq.com) on 11/11/15.
@@ -72,7 +70,7 @@ public class JobFinishHandler {
             //添加任务状态
             JobStatType jobStatType = JobStatType.FINISH;
             if(!Action.EXECUTE_SUCCESS.equals(result.getAction())){
-                jobStatType = JobStatType.FIAL;
+                jobStatType = JobStatType.FAIL;
             }
             Job job = result.getJobMeta().getJob();
             if(JobStatType.FINISH.equals(jobStatType)){
