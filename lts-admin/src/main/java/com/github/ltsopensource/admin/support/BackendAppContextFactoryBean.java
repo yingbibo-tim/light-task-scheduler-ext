@@ -97,6 +97,8 @@ public class BackendAppContextFactoryBean implements FactoryBean<BackendAppConte
     private void initJobQueue(Config config) {
         JobQueueFactory factory = ServiceLoader.load(JobQueueFactory.class, config);
         appContext.setExecutableJobQueue(factory.getExecutableJobQueue(config));
+        appContext.setJobStatQueue(factory.getJobStatQueue(config));
+        appContext.setFinishJobQueue(factory.getFinishJobQueue(config));
         appContext.setExecutingJobQueue(factory.getExecutingJobQueue(config));
         appContext.setCronJobQueue(factory.getCronJobQueue(config));
         appContext.setRepeatJobQueue(factory.getRepeatJobQueue(config));

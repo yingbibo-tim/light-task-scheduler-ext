@@ -65,8 +65,6 @@ public class JobClientManager {
 
         // create feedback queue
         appContext.getJobFeedbackQueue().createQueue(node.getGroup());
-        appContext.getJobStatQueue().createQueue(node.getGroup());
-        appContext.getFinishJobQueue().createQueue(node.getGroup());
         appContext.getNodeGroupStore().addNodeGroup(NodeType.JOB_CLIENT, node.getGroup(),null);
 
     }

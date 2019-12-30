@@ -70,6 +70,9 @@ public class NodeApi extends AbstractMVC {
         appContext.getNodeGroupStore().addNodeGroup(request.getNodeType(), request.getNodeGroup(),request.getSubNodeGroup());
         if (NodeType.TASK_TRACKER.equals(request.getNodeType())) {
             appContext.getExecutableJobQueue().createQueue(request.getNodeGroup());
+            appContext.getFinishJobQueue().createQueue(request.getNodeGroup());
+            appContext.getJobStatQueue().createQueue(request.getNodeGroup());
+
         } else if (NodeType.JOB_CLIENT.equals(request.getNodeType())) {
             appContext.getJobFeedbackQueue().createQueue(request.getNodeGroup());
         }

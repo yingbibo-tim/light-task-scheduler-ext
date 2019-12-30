@@ -16,6 +16,8 @@ public class BackendAppContext extends AppContext {
     private CronJobQueue cronJobQueue;
     private RepeatJobQueue repeatJobQueue;
     private ExecutableJobQueue executableJobQueue;
+    private JobStatQueue jobStatQueue;
+    private FinishJobQueue finishJobQueue;
     private ExecutingJobQueue executingJobQueue;
     private JobFeedbackQueue jobFeedbackQueue;
     private SuspendJobQueue suspendJobQueue;
@@ -67,6 +69,22 @@ public class BackendAppContext extends AppContext {
 
     public void setExecutableJobQueue(ExecutableJobQueue executableJobQueue) {
         this.executableJobQueue = executableJobQueue;
+    }
+
+    public JobStatQueue getJobStatQueue() {
+        return jobStatQueue;
+    }
+
+    public void setJobStatQueue(JobStatQueue jobStatQueue) {
+        this.jobStatQueue = jobStatQueue;
+    }
+
+    public FinishJobQueue getFinishJobQueue() {
+        return finishJobQueue;
+    }
+
+    public void setFinishJobQueue(FinishJobQueue finishJobQueue) {
+        this.finishJobQueue = finishJobQueue;
     }
 
     public ExecutingJobQueue getExecutingJobQueue() {
