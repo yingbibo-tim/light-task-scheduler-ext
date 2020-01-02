@@ -56,6 +56,8 @@ public class JobSender {
             }
             if(!needSubmit){
                 it.remove();
+                //如果都不需要添加任务 则移除执行队列
+                appContext.getExecutingJobQueue().remove(jobPo.getJobId());
             }
         }
 
