@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS `lts_job_log_po` (
   `submit_node_group` varchar(64) COMMENT '提交节点组',
   `task_tracker_node_group` varchar(64) COMMENT '执行节点组',
   `task_tracker_sub_node_group` varchar(64) COMMENT '执行子节点组',
-  `ext_params` text COMMENT '用户参数',
+  `ext_params` longtext COMMENT '用户参数',
   `internal_ext_params` text COMMENT '内部扩展参数 JSON',
   `need_feedback` tinyint(4) COMMENT '是否需要反馈',
   `cron_expression` varchar(128) COMMENT 'cron表达式',

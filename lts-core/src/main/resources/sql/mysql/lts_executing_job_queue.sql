@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS `{tableName}` (
   `submit_node_group` varchar(64) COMMENT '提交节点组,提交客户端的节点组',
   `task_tracker_node_group` varchar(64) COMMENT '执行节点组,执行job的任务节点',
   `task_tracker_sub_node_group` varchar(64) COMMENT '执行节点组,执行job的任务子节点',
-  `ext_params` text COMMENT '用户参数 JSON',
+  `ext_params` longtext COMMENT '用户参数 JSON',
   `internal_ext_params` text COMMENT '内部扩展参数 JSON',
   `is_running` tinyint(1) COMMENT '是否正在执行',
   `task_tracker_identity` varchar(64) COMMENT 'taskTrackerId,执行的taskTracker的唯一标识',
