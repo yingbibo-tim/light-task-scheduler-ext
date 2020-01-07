@@ -257,6 +257,7 @@ public class JobPusher {
 
         // 队列切回来
         boolean needResume = true;
+        String jobPoId = jobPo.getJobId();
         try {
             jobPo.setIsRunning(true);
             appContext.getExecutableJobQueue().add(jobPo);
@@ -265,7 +266,7 @@ public class JobPusher {
             needResume = false;
             JobComposeUtils.composeExecutableJob(jobPo,appContext.getExecutableJobQueue());
         }
-        appContext.getExecutingJobQueue().remove(jobPo.getJobId());
+        appContext.getExecutingJobQueue().remove(jobPoId);
         if (needResume) {
             appContext.getExecutableJobQueue().resume(jobPo);
             JobStatUtils.changeJobStat(appContext.getJobStatQueue(),appContext.getFinishJobQueue(),jobPo.getTaskId(),jobPo.getTaskTrackerNodeGroup(),jobPo.getTaskTrackerSubNodeGroup(),JobStatType.WAIT);

@@ -108,6 +108,7 @@ public class JobRetryHandler {
             jobPo.setGmtModified(SystemClock.now());
             // 延迟重试时间就等于重试次数(分钟)
             jobPo.setTriggerTime(nextRetryTriggerTime);
+            String jobPoId = jobPo.getJobId();
             try {
                 appContext.getExecutableJobQueue().add(jobPo);
             } catch (DupEntryException e) {
@@ -115,7 +116,7 @@ public class JobRetryHandler {
                 JobComposeUtils.composeExecutableJob(jobPo,appContext.getExecutableJobQueue());
             }
             // 从正在执行的队列中移除
-            appContext.getExecutingJobQueue().remove(jobPo.getJobId());
+            appContext.getExecutingJobQueue().remove(jobPoId);
             JobStatUtils.changeJobStat(appContext.getJobStatQueue(),appContext.getFinishJobQueue(),jobPo.getTaskId(),jobPo.getTaskTrackerNodeGroup(),jobPo.getTaskTrackerSubNodeGroup(),JobStatType.WAIT);
 
         }

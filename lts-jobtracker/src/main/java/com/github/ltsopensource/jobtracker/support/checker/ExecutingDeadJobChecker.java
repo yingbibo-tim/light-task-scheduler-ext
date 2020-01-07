@@ -201,10 +201,11 @@ public class ExecutingDeadJobChecker {
             if (appContext.getExecutingJobQueue().getJob(jobPo.getJobId()) == null) {
                 return;
             }
-
+            String jobPoId = jobPo.getJobId();
             jobPo.setGmtModified(SystemClock.now());
             jobPo.setTaskTrackerIdentity(null);
             jobPo.setIsRunning(false);
+
             // 1. add to executable queue
             try {
                 appContext.getExecutableJobQueue().add(jobPo);
@@ -214,7 +215,7 @@ public class ExecutingDeadJobChecker {
             }
 
             // 2. remove from executing queue
-            appContext.getExecutingJobQueue().remove(jobPo.getJobId());
+            appContext.getExecutingJobQueue().remove(jobPoId);
 
             JobLogPo jobLogPo = JobDomainConverter.convertJobLog(jobPo);
             jobLogPo.setLogTime(SystemClock.now());
