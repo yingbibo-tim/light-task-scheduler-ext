@@ -343,9 +343,12 @@ public class JobPo implements Serializable {
         if(!StringUtils.isEmpty(oldWebFrom)){
             oldParamsMap.put(Constants.WEB_FROM,oldWebFrom);
         }
+        if(internalExtParams!=null&&internalExtParams.containsKey(Constants.MERGE_ALL)){
+            paramsMap.putAll(oldParamsMap);
+            oldParamsMap = paramsMap;
+        }
+        this.extParams = oldParamsMap;
         setJobId(jobPo.getJobId());
-
-
     }
 
 
@@ -353,4 +356,5 @@ public class JobPo implements Serializable {
     public String toString() {
         return JSON.toJSONString(this);
     }
+
 }

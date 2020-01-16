@@ -80,4 +80,5 @@ public interface Constants {
 
     String WEB_FROM = "__LTS_Web_From";
     String DAY_RANGE = "__LTS_DAY_RANGE";
+    String MERGE_ALL = "__LTS_MERGE_ALL";
 }
