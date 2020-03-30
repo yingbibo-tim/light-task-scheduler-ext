@@ -7,6 +7,7 @@ import com.github.ltsopensource.queue.domain.JobFinishPo;
 import com.github.ltsopensource.queue.domain.JobStatPo;
 import com.github.ltsopensource.queue.domain.JobStatType;
 
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -18,7 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class JobStatUtils {
 
 
-	private final static Long DAY_TIMESTAMP = 1000*60*60*24L;
+	private final static Long DAY_TIMESTAMP = 1000*60*60*24L-5*1000*60*60L;
 
 	public static void changeJobStat(JobStatQueue jobStatQueue,FinishJobQueue finishJobQueue, String taskId,String taskTrackerNodeGroup,String taskTrackerSubNodeGroup,JobStatType jobStatType){
 		List<JobStatPo> jobStatPoList = jobStatQueue.getJobs(taskTrackerNodeGroup,taskTrackerSubNodeGroup,taskId);
@@ -81,4 +82,8 @@ public class JobStatUtils {
 		}
 		return false;
 	}
+
+	/**
+	 * 添加状态以后，要添加一个任务日志,
+	 */
 }
