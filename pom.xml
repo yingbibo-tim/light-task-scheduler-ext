@@ -46,7 +46,7 @@
         <hessian.version>4.0.38</hessian.version>
         <mapdb.version>3.0.0</mapdb.version>
         <groovy.version>2.4.5</groovy.version>
-        <jackson.version>2.8.4</jackson.version>
+        <jackson.version>2.12.7.1</jackson.version>
         <aspectj.version>1.7.2</aspectj.version>
         <javax.mail.version>1.5.4</javax.mail.version>
         <spring.boot.version>1.3.3.RELEASE</spring.boot.version>
